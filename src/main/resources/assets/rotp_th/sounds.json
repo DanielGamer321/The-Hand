@@ -1,7 +1,7 @@
 {
   "okuyasu_the_hand": {
     "subtitle": "rotp_th.subtitle.the_hand_name",
-    "sounds": [ "rotp_th:stand_user/okuyasu_the_hand" ]
+    "sounds": [ "rotp_th:stand_user/okuyasu_the_hand", "rotp_th:stand_user/okuyasu_the_hand_2" ]
   },
   "the_hand_summon": {
     "subtitle": "jojo.subtitle.stand_summon",

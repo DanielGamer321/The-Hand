@@ -2,6 +2,7 @@ package com.danielgamer321.rotp_th.client.render.entity.model.stand;
 
 import com.danielgamer321.rotp_th.entity.stand.stands.TheHandEntity;
 import com.danielgamer321.rotp_th.action.stand.TheHandErase;
+import com.danielgamer321.rotp_th.action.stand.TheHandEraseItem;
 import com.danielgamer321.rotp_th.action.stand.TheHandErasureBarrage;
 import com.github.standobyte.jojo.action.stand.StandEntityAction;
 import com.github.standobyte.jojo.client.render.entity.model.stand.HumanoidStandModel;
@@ -26,9 +27,6 @@ public class TheHandModel extends HumanoidStandModel<TheHandEntity> {
 	private final ModelRenderer spine2;
 	private final ModelRenderer leftPartTriangle;
 	private final ModelRenderer rightPartTriangle;
-	private final ModelRenderer head2;
-	private final ModelRenderer rightPartForehead2;
-	private final ModelRenderer leftPartForehead2;
 
 	public TheHandModel() {
 		super();
@@ -121,38 +119,6 @@ public class TheHandModel extends HumanoidStandModel<TheHandEntity> {
 		rightForeArm.texOffs(16, 117).addBox(-2.75F, -0.25F, -1.5F, 1.0F, 3.0F, 3.0F, -0.251F, false);
 		rightForeArm.texOffs(24, 117).addBox(1.75F, -0.25F, -1.5F, 1.0F, 3.0F, 3.0F, -0.251F, false);
 
-		head2 = new ModelRenderer(this);
-		head2.setPos(0.0F, -12.0F, 0.0F);
-		upperPart.addChild(head2);
-		head2.texOffs(0, 0).addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 8.0F, 0.0F, false);
-		head2.texOffs(0, 0).addBox(-3.0F, -4.0F, -4.15F, 2.0F, 1.0F, 1.0F, 0.0F, false);
-		head2.texOffs(0, 2).addBox(1.0F, -4.0F, -4.15F, 2.0F, 1.0F, 1.0F, 0.0F, true);
-		head2.texOffs(34, 0).addBox(-4.0F, -8.1F, -4.0F, 8.0F, 8.0F, 8.0F, 0.2F, false);
-		head2.texOffs(34, 17).addBox(-4.0F, -8.46F, -4.0F, 8.0F, 1.0F, 8.0F, -0.8399F, false);
-		head2.texOffs(67, 7).addBox(2.8342F, -8.1F, -4.0F, 1.0F, 8.0F, 1.0F, 0.2F, false);
-		head2.texOffs(80, 7).addBox(-3.8363F, -8.1F, -4.3634F, 1.0F, 8.0F, 1.0F, 0.2F, false);
-		head2.texOffs(76, 7).addBox(-3.8363F, -8.1F, -4.0F, 1.0F, 8.0F, 1.0F, 0.2F, false);
-		head2.texOffs(85, 26).addBox(3.365F, -1.1F, -1.73F, 1.0F, 1.0F, 1.0F, 0.2F, false);
-		head2.texOffs(26, 3).addBox(3.0F, -4.0F, -0.5F, 2.0F, 1.0F, 1.0F, 0.0F, false);
-		head2.texOffs(85, 28).addBox(-4.365F, -1.1F, -1.73F, 1.0F, 1.0F, 1.0F, 0.2F, false);
-		head2.texOffs(67, 29).addBox(-4.0F, -4.1F, -1.727F, 8.0F, 4.0F, 1.0F, 0.2F, false);
-		head2.texOffs(67, 26).addBox(-4.0F, -4.195F, 0.73F, 8.0F, 2.0F, 1.0F, 0.2F, false);
-		head2.texOffs(67, 22).addBox(-4.0F, -3.195F, 1.0F, 8.0F, 1.0F, 3.0F, 0.2F, false);
-		head2.texOffs(26, 1).addBox(-5.0F, -4.0F, -0.5F, 2.0F, 1.0F, 1.0F, 0.0F, false);
-		head2.texOffs(71, 7).addBox(2.8342F, -8.1F, -4.3634F, 1.0F, 8.0F, 1.0F, 0.2F, false);
-		head2.texOffs(34, 26).addBox(-4.0F, -0.74F, -4.0F, 8.0F, 1.0F, 8.0F, -0.8399F, false);
-		head2.texOffs(5, 17).addBox(-3.0F, -8.0F, -4.09F, 6.0F, 4.0F, 2.0F, -0.01F, false);
-
-		rightPartForehead2 = new ModelRenderer(this);
-		rightPartForehead2.setPos(0.0F, -2.01F, -4.29F);
-		head2.addChild(rightPartForehead2);
-		rightPartForehead2.texOffs(22, 17).addBox(-0.01F, -5.99F, -0.01F, 1.0F, 6.0F, 1.0F, -0.01F, false);
-
-		leftPartForehead2 = new ModelRenderer(this);
-		leftPartForehead2.setPos(0.0F, -2.01F, -4.29F);
-		head2.addChild(leftPartForehead2);
-		leftPartForehead2.texOffs(0, 17).addBox(-0.99F, -5.99F, -0.01F, 1.0F, 6.0F, 1.0F, -0.01F, false);
-
 		leftLeg.texOffs(112, 108).addBox(2.0F, -1.25F, -1.5F, 1.0F, 3.0F, 3.0F, 0.0F, true);
 		leftLeg.texOffs(108, 118).addBox(-1.0F, 4.5F, -2.5F, 2.0F, 2.0F, 2.0F, 0.0F, false);
 		leftLeg.texOffs(111, 101).addBox(-2.0F, -0.5F, 0.5F, 5.0F, 1.0F, 2.0F, -0.1F, false);
@@ -170,17 +136,6 @@ public class TheHandModel extends HumanoidStandModel<TheHandEntity> {
 		rightLeg.texOffs(83, 104).addBox(1.0F, 2.5F, 0.5F, 2.0F, 1.0F, 2.0F, -0.1F, false);
 		rightLeg.texOffs(89, 96).addBox(0.0F, 0.3F, -2.5F, 1.0F, 3.0F, 1.0F, -0.1F, false);
 		rightLeg.texOffs(79, 104).addBox(1.0F, 0.3F, 1.5F, 1.0F, 3.0F, 1.0F, -0.1F, false);
-	}
-
-	@Override
-	public void prepareMobModel(TheHandEntity entity, float walkAnimPos, float walkAnimSpeed, float partialTick) {
-		super.prepareMobModel(entity, walkAnimPos, walkAnimSpeed, partialTick);
-		if (head != null) {
-			head.visible = entity.hashead();
-		}
-		if (head2 != null) {
-			head2.visible = entity.hashead2();
-		}
 	}
 
 	@Override
@@ -261,14 +216,12 @@ public class TheHandModel extends HumanoidStandModel<TheHandEntity> {
 						.build(kickPose3))
 				.addPose(StandEntityAction.Phase.RECOVERY, new ModelPoseTransitionMultiple.Builder<>(kickPose3)
 						.addPose(0.5F, kickPose3)
-                        .addPose(0.9F, kickRecoveryBodyFix)
+						.addPose(0.9F, kickRecoveryBodyFix)
 						.build(idlePose))
 				.build(idlePose));
 
 		ModelPose<TheHandEntity> handPose1 = new ModelPose<>(new RotationAngle[] {
-				RotationAngle.fromDegrees(head2, -10F, -10F, 0F),
-				RotationAngle.fromDegrees(body, 10F, 10F, 0F),
-				RotationAngle.fromDegrees(upperPart, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(body, 0F, 10F, 0F),
 				RotationAngle.fromDegrees(leftArm, -2.5F, 0F, -5F),
 				RotationAngle.fromDegrees(leftForeArm, -20F, 0F, 0F),
 				RotationAngle.fromDegrees(rightArm, 45F, 0F, 90F),
@@ -279,26 +232,27 @@ public class TheHandModel extends HumanoidStandModel<TheHandEntity> {
 				RotationAngle.fromDegrees(rightLowerLeg, 15F, 0F, 0F)
 		});
 		ModelPose<TheHandEntity> handPose2 = new ModelPose<>(new RotationAngle[] {
-				RotationAngle.fromDegrees(head2, -15F, -5F, 0F),
-				RotationAngle.fromDegrees(body, 5F, 5F, 0F),
-				RotationAngle.fromDegrees(upperPart, 15F, 0F, 0F),
-				RotationAngle.fromDegrees(rightArm, -70F, 70F, 90F),
-				RotationAngle.fromDegrees(rightForeArm, -10F, 10F, 10F),
-				RotationAngle.fromDegrees(leftLeg, 9.5F, 0F, -10F)
+				RotationAngle.fromDegrees(body, 5F, -10F, 0F),
+				RotationAngle.fromDegrees(rightArm, -45.3409F, 63.1383F, 116.7521F),
+				RotationAngle.fromDegrees(rightForeArm, -10F, 0F, 0F)
 		});
 		ModelPose<TheHandEntity> handPose3 = new ModelPose<>(new RotationAngle[] {
-				RotationAngle.fromDegrees(head2, -20F, 0F, 0F),
-				RotationAngle.fromDegrees(body, 0F, 0F, 0F),
-				RotationAngle.fromDegrees(upperPart, 30F, 0F, 0F),
-				RotationAngle.fromDegrees(rightArm, -90F, -40F, 90F),
-				RotationAngle.fromDegrees(rightForeArm, 0F, 0F, 0F),
-				RotationAngle.fromDegrees(leftLeg, 24.5F, 0F, -10F)
+				RotationAngle.fromDegrees(body, 6.67F, -20F, -3.33F),
+				RotationAngle.fromDegrees(rightArm, -53.6054F, 20.4195F, 101.6022F),
+				RotationAngle.fromDegrees(rightForeArm, -6.67F, 0F, 0F)
+		});
+		ModelPose<TheHandEntity> handPose4 = new ModelPose<>(new RotationAngle[] {
+				RotationAngle.fromDegrees(body, 10F, -40F, -5F),
+				RotationAngle.fromDegrees(rightArm, -31.4798F, -43.9257F, 37.3255F),
+				RotationAngle.fromDegrees(rightForeArm, 0F, 0F, 0F)
 		});
 		actionAnim.put(TheHandErase.ERASE_POSE, new PosedActionAnimation.Builder<TheHandEntity>()
 				.addPose(StandEntityAction.Phase.WINDUP, new ModelPoseTransition<>(handPose1, handPose2))
-				.addPose(StandEntityAction.Phase.PERFORM, new ModelPoseTransition<>(handPose2, handPose3))
-				.addPose(StandEntityAction.Phase.RECOVERY, new ModelPoseTransitionMultiple.Builder<>(handPose3)
+				.addPose(StandEntityAction.Phase.PERFORM, new ModelPoseTransitionMultiple.Builder<>(handPose2)
 						.addPose(0.5F, handPose3)
+						.build(handPose4))
+				.addPose(StandEntityAction.Phase.RECOVERY, new ModelPoseTransitionMultiple.Builder<>(handPose4)
+						.addPose(0.5F, handPose4)
 						.build(idlePose))
 				.build(idlePose));
 
@@ -314,7 +268,6 @@ public class TheHandModel extends HumanoidStandModel<TheHandEntity> {
 		};
 
 		RotationAngle[] erasureRightImpact = new RotationAngle[] {
-				RotationAngle.fromDegrees(body, 10, -45, 0),
 				RotationAngle.fromDegrees(rightArm, -90, 0, 0),
 				RotationAngle.fromDegrees(rightForeArm, 0, 0, -50)
 		};
@@ -334,6 +287,32 @@ public class TheHandModel extends HumanoidStandModel<TheHandEntity> {
 
 		actionAnim.putIfAbsent(TheHandErasureBarrage.ERASURE_BARRAGE_POSE, new StandOneHandedBarrageAnimation<TheHandEntity>(this,
 				stabLoop,
+				idlePose,
+				Hand.MAIN_HAND));
+
+		ModelPose<TheHandEntity> eraseItem1 = new ModelPose<>(new RotationAngle[] {
+				RotationAngle.fromDegrees(head, 29.5082F, 34.1015F, 6.0722F),
+				RotationAngle.fromDegrees(body, 10F, 29.8742F, 5.3807F),
+				RotationAngle.fromDegrees(leftArm, -2.5F, 0F, -5F),
+				RotationAngle.fromDegrees(leftForeArm, -20F, 0F, 0F),
+				RotationAngle.fromDegrees(rightArm, -62.8923F, -27.0377F, 10.4828F),
+				RotationAngle.fromDegrees(rightForeArm, -91.2283F, -50.6342F, 77.3291F),
+				RotationAngle.fromDegrees(leftLeg, -5.5F, 0F, -10F),
+				RotationAngle.fromDegrees(leftLowerLeg, 25F, 0F, 0F),
+				RotationAngle.fromDegrees(rightLeg, -5.5F, 0F, 15F),
+				RotationAngle.fromDegrees(rightLowerLeg, 15F, 0F, 0F)
+		});
+		ModelPose<TheHandEntity> eraseItem2 = new ModelPose<>(new RotationAngle[] {
+				RotationAngle.fromDegrees(rightForeArm, -112.7381F, -87.9841F, 99.1049F)
+		});
+
+		IModelPose<TheHandEntity> eraseItems = new ModelPoseTransition<TheHandEntity>(eraseItem1, eraseItem2).setEasing(sw -> {
+			float halfSwing = sw < 0.4F ? sw * 20 / 8 : sw > 0.6F ? (1 - sw) * 20 / 8 : 1F;
+			return halfSwing * halfSwing * halfSwing;
+		});
+
+		actionAnim.putIfAbsent(TheHandEraseItem.ERASE_ITEM_POSE, new StandOneHandedBarrageAnimation<TheHandEntity>(this,
+				eraseItems,
 				idlePose,
 				Hand.MAIN_HAND));
 

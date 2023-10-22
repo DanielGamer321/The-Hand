@@ -3,6 +3,7 @@ package com.danielgamer321.rotp_th.init;
 import com.danielgamer321.rotp_th.RotpTheHandAddon;
 import com.danielgamer321.rotp_th.entity.stand.stands.TheHandEntity;
 import com.danielgamer321.rotp_th.action.stand.TheHandErase;
+import com.danielgamer321.rotp_th.action.stand.TheHandEraseItem;
 import com.danielgamer321.rotp_th.action.stand.TheHandErasureBarrage;
 import com.github.standobyte.jojo.action.Action;
 import com.github.standobyte.jojo.action.stand.StandAction;
@@ -53,22 +54,27 @@ public class InitStands {
                     .shiftVariationOf(THE_HAND_PUNCH).shiftVariationOf(THE_HAND_BARRAGE)));
 
     public static final RegistryObject<StandEntityAction> THE_HAND_ERASE = ACTIONS.register("the_hand_erase",
-            () -> new TheHandErase(new TheHandErase.Builder().holdToFire(20, false).standUserWalkSpeed(1.0F)
+            () -> new TheHandErase(new TheHandErase.Builder().holdToFire(20, false).standUserWalkSpeed(1.0F).standPerformDuration(1)
                     .resolveLevelToUnlock(2)
-                    .standPose(TheHandErase.ERASE_POSE)
                     .partsRequired(StandPart.ARMS)
                     .standSound(InitSounds.THE_HAND_ERASE)));
 
     public static final RegistryObject<StandEntityAction> THE_HAND_ERASURE_BARRAGE = ACTIONS.register("the_hand_erasure_barrage",
-            () -> new TheHandErasureBarrage(new StandEntityMeleeBarrage.Builder().staminaCostTick(10F).cooldown(170)
+            () -> new TheHandErasureBarrage(new TheHandErasureBarrage.Builder().cooldown(170)
                     .resolveLevelToUnlock(4)
                     .autoSummonStand()
-                    .standPose(TheHandErasureBarrage.ERASURE_BARRAGE_POSE)
                     .barrageSwingSound(InitSounds.THE_HAND_ERASURE_BARRAGE).barrageHitSound(null)
                     .partsRequired(StandPart.ARMS)));
     
     public static final RegistryObject<StandEntityAction> THE_HAND_BLOCK = ACTIONS.register("the_hand_block",
             () -> new StandEntityBlock());
+
+    public static final RegistryObject<StandEntityAction> THE_HAND_ERASE_ITEM = ACTIONS.register("the_hand_erase_item",
+            () -> new TheHandEraseItem(new TheHandEraseItem.Builder().holdType().staminaCostTick(1F)
+                    .resolveLevelToUnlock(3)
+                    .standOffsetFromUser(0.667, 0.2, 0).standPose(TheHandEraseItem.ERASE_ITEM_POSE)
+                    .partsRequired(StandPart.ARMS)
+                    .standSound(InitSounds.THE_HAND_ERASURE_BARRAGE)));
     
     
     public static final EntityStandRegistryObject<EntityStandType<StandStats>, StandEntityType<TheHandEntity>> STAND_THE_HAND =
@@ -83,7 +89,8 @@ public class InitStands {
                                     THE_HAND_ERASE.get(),
                                     THE_HAND_ERASURE_BARRAGE.get()},
                             new StandAction[] {
-                                    THE_HAND_BLOCK.get()},
+                                    THE_HAND_BLOCK.get(),
+                                    THE_HAND_ERASE_ITEM.get()},
 
                             StandStats.class, new StandStats.Builder()
                             .tier(6)
@@ -91,7 +98,7 @@ public class InitStands {
                             .speed(12.0)
                             .range(4.0, 4.0)
                             .durability(10.0)
-                            .precision(9.0)
+                            .precision(10.0)
                             .build("The Hand"),
 
                             new StandType.StandTypeOptionals()

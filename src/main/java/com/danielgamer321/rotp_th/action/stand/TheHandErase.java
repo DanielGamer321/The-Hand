@@ -19,15 +19,12 @@ import com.github.standobyte.jojo.entity.stand.StandEntity;
 import com.github.standobyte.jojo.entity.stand.StandEntityTask;
 import com.github.standobyte.jojo.entity.stand.StandPose;
 import com.github.standobyte.jojo.entity.stand.StandStatFormulas;
-import com.github.standobyte.jojo.init.ModEnchantments;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.mc.damage.StandEntityDamageSource;
 
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.EntityRayTraceResult;
@@ -37,8 +34,8 @@ import net.minecraft.world.World;
 
 public class TheHandErase extends StandEntityAction implements IHasStandPunch {
     public static final StandPose ERASE_POSE = new StandPose("ERASE");
-    private static final double TP_RANGE = 8;
-    private static final double PULL_TRACKING_RANGE = 8;
+    private static final double TP_RANGE = 12;
+    private static final double PULL_TRACKING_RANGE = 12;
     private final Supplier<StandEntityActionModifier> recoveryAction;
     private final Supplier<SoundEvent> swingSound;
 
@@ -72,8 +69,6 @@ public class TheHandErase extends StandEntityAction implements IHasStandPunch {
         standEntity.alternateHands();
         if (!world.isClientSide()) {
             TheHandEntity thehand = (TheHandEntity) standEntity;
-            thehand.sethead(false);
-            thehand.sethead2(true);
             thehand.setErase(true);
         }
     }
@@ -120,11 +115,31 @@ public class TheHandErase extends StandEntityAction implements IHasStandPunch {
     @Override
     public StandEntityPunch punchEntity(StandEntity stand, Entity target, StandEntityDamageSource dmgSource) {
         double strength = stand.getAttackDamage();
+        LivingEntity entity = (LivingEntity) target;
         StandEntityPunch punch = IHasStandPunch.super.punchEntity(stand, target, dmgSource);
         dmgSource.bypassArmor().bypassMagic();
-        punch.damage(StandStatFormulas.getHeavyAttackDamage(strength));
+        punch.damage(getEraseDamage(entity, stand));
         punch.addKnockback(0);
         return punch;
+    }
+
+    private static float getEraseDamage(LivingEntity entity, StandEntity stand) {
+        float damage = 0;
+        if (entity.getMaxHealth() >= 20) {
+            if (entity.getMaxHealth() >= 80) {
+                damage = entity.getMaxHealth() * 0.2F;
+                return damage;
+            }
+            else {
+                damage = entity.getMaxHealth() * 0.8F;
+                return damage;
+            }
+        } else if (entity.getMaxHealth() < 20) {
+            double strength = stand.getAttackDamage();
+            damage = StandStatFormulas.getHeavyAttackDamage(strength);
+            return damage;
+        }
+        return damage;
     }
 
     @Override
@@ -169,8 +184,8 @@ public class TheHandErase extends StandEntityAction implements IHasStandPunch {
         private Supplier<SoundEvent> swingSound = InitSounds.THE_HAND_ERASE;
         
         public Builder() {
-            standPose(StandPose.HEAVY_ATTACK).staminaCost(150F)
-            .standOffsetFromUser(-0.75, 0.75);
+            standPose(TheHandErase.ERASE_POSE).staminaCost(150F)
+            .standOffsetFront();
         }
         
         public Builder swingSound(Supplier<SoundEvent> swingSound) {
@@ -206,8 +221,6 @@ public class TheHandErase extends StandEntityAction implements IHasStandPunch {
     protected void onTaskStopped(World world, StandEntity standEntity, IStandPower standPower, StandEntityTask task, @Nullable StandEntityAction newAction) {
         if (!world.isClientSide()) {
             TheHandEntity thehand = (TheHandEntity) standEntity;
-            thehand.sethead(true);
-            thehand.sethead2(false);
             thehand.setErase(false);
         }
     }
