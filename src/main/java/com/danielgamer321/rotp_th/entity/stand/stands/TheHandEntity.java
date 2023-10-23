@@ -3,12 +3,12 @@ package com.danielgamer321.rotp_th.entity.stand.stands;
 import com.github.standobyte.jojo.action.ActionTarget;
 import com.github.standobyte.jojo.action.stand.CrazyDiamondRestoreTerrain;
 import com.github.standobyte.jojo.action.stand.IHasStandPunch;
+import com.github.standobyte.jojo.action.stand.punch.StandEntityPunch;
+import com.github.standobyte.jojo.entity.damaging.projectile.ModdedProjectileEntity;
 import com.github.standobyte.jojo.entity.stand.StandEntity;
 import com.github.standobyte.jojo.entity.stand.StandEntityTask;
 import com.github.standobyte.jojo.entity.stand.StandEntityType;
-import com.github.standobyte.jojo.init.ModEntityAttributes;
 import com.github.standobyte.jojo.init.ModEntityTypes;
-import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.general.MathUtil;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 public class TheHandEntity extends StandEntity {
     public static final AttributeModifier ERASE_POWER_DESTRUCTION_BOOST = new AttributeModifier(
@@ -63,15 +64,23 @@ public class TheHandEntity extends StandEntity {
         updateModifier(getAttribute(Attributes.ATTACK_DAMAGE), ERASE_POWER_DESTRUCTION_BOOST, erase);
     }
 
-    public boolean barrageChashPresicion (StandEntity theHand){
-        if (theHand.barrageClashOpponent().isPresent()){
+    @Override
+    public boolean attackEntity(Supplier<Boolean> doAttack, StandEntityPunch punch, StandEntityTask task) {
+        return attackOrErase(doAttack, punch, task);
+    }
+
+    private boolean attackOrErase(Supplier<Boolean> doAttack, StandEntityPunch punch, StandEntityTask task) {
+        if (hasErase() && punch.target instanceof ProjectileEntity) {
+            return eraseProjectile(punch.target);
         }
-        return false;
+        else {
+            return super.attackEntity(doAttack, punch, task);
+        }
     }
 
     @Override
     public boolean attackTarget(ActionTarget target, IHasStandPunch punch, StandEntityTask task) {
-        if (this.hasErase() == true) {
+        if (hasErase()) {
             level.getEntitiesOfClass(ProjectileEntity.class, getBoundingBox().inflate(getAttributeValue(ForgeMod.REACH_DISTANCE.get())),
                     entity -> entity.isAlive() && !entity.isPickable()).forEach(projectile -> {
                 if (this.getLookAngle().dot(projectile.getDeltaMovement().reverse().normalize())
@@ -92,11 +101,14 @@ public class TheHandEntity extends StandEntity {
         return false;
     }
 
-    public static void eraseProjectile(Entity projectile, @Nullable Vector3d deflectVec) {
-        projectile.setDeltaMovement(deflectVec != null ?
-                deflectVec.scale(Math.sqrt(projectile.getDeltaMovement().lengthSqr() / deflectVec.lengthSqr()))
+    public static void eraseProjectile(Entity projectile, @Nullable Vector3d eraseVec) {
+        projectile.setDeltaMovement(eraseVec != null ?
+                eraseVec.scale(Math.sqrt(projectile.getDeltaMovement().lengthSqr() / eraseVec.lengthSqr()))
                 : projectile.getDeltaMovement().reverse());
         projectile.remove();
+        if (projectile instanceof ModdedProjectileEntity) {
+            ((ModdedProjectileEntity) projectile).remove();
+        }
     }
 
     protected boolean breakBlock(BlockPos blockPos, BlockState blockState, boolean dropLootTableItems, @Nullable List<ItemStack> createdDrops) {

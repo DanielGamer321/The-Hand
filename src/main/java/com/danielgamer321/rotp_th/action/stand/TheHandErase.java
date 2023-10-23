@@ -130,7 +130,7 @@ public class TheHandErase extends StandEntityAction implements IHasStandPunch {
         else {
             LivingEntity entity = (LivingEntity) target;
             if (entity.isAlive() && entity.getMaxHealth() >= 20) {
-                damage = entity.getMaxHealth() * 0.0115F;
+                damage = entity.getMaxHealth() * 0.8F;
                 return damage;
             }
             else if (entity.getMaxHealth() < 20) {
