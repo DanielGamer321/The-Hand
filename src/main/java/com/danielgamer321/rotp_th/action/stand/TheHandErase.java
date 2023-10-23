@@ -114,32 +114,31 @@ public class TheHandErase extends StandEntityAction implements IHasStandPunch {
     
     @Override
     public StandEntityPunch punchEntity(StandEntity stand, Entity target, StandEntityDamageSource dmgSource) {
-        double strength = stand.getAttackDamage();
-        LivingEntity entity = (LivingEntity) target;
         StandEntityPunch punch = IHasStandPunch.super.punchEntity(stand, target, dmgSource);
         dmgSource.bypassArmor().bypassMagic();
-        punch.damage(getEraseDamage(entity, stand));
+        punch.damage(getEraseDamage(target, stand));
         punch.addKnockback(0);
         return punch;
     }
 
-    private static float getEraseDamage(LivingEntity entity, StandEntity stand) {
+    private static float getEraseDamage(Entity target, StandEntity stand) {
         float damage = 0;
-        if (entity.getMaxHealth() >= 20) {
-            if (entity.getMaxHealth() >= 80) {
-                damage = entity.getMaxHealth() * 0.2F;
-                return damage;
-            }
-            else {
-                damage = entity.getMaxHealth() * 0.8F;
-                return damage;
-            }
-        } else if (entity.getMaxHealth() < 20) {
-            double strength = stand.getAttackDamage();
-            damage = StandStatFormulas.getHeavyAttackDamage(strength);
+        if (!(target instanceof LivingEntity)) {
+            damage = StandStatFormulas.getBarrageHitDamage(stand.getAttackDamage(), stand.getPrecision());
             return damage;
         }
-        return damage;
+        else {
+            LivingEntity entity = (LivingEntity) target;
+            if (entity.isAlive() && entity.getMaxHealth() >= 20) {
+                damage = entity.getMaxHealth() * 0.0115F;
+                return damage;
+            }
+            else if (entity.getMaxHealth() < 20) {
+                damage = StandStatFormulas.getBarrageHitDamage(stand.getAttackDamage(), stand.getPrecision());
+                return damage;
+            }
+            return damage;
+        }
     }
 
     @Override

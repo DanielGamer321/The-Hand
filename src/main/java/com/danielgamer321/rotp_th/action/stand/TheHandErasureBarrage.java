@@ -108,23 +108,30 @@ public class TheHandErasureBarrage extends StandEntityAction implements IHasStan
     
     @Override
     public BarrageEntityPunch punchEntity(StandEntity stand, Entity target, StandEntityDamageSource dmgSource) {
-        LivingEntity entity = (LivingEntity) target;
-        BarrageEntityPunch punch = new BarrageEntityPunch(stand, target, dmgSource).barrageHits(stand, stand.barrageHits);
+        BarrageEntityPunch punch = new BarrageEntityPunch(stand, target, dmgSource).barrageHits(stand, target,stand.barrageHits);
         dmgSource.bypassArmor().bypassMagic();
         punch.impactSound(hitSound);
         return punch;
     }
 
-    private static float getEraseDamage(LivingEntity entity, StandEntity stand) {
+    private static float getEraseDamage(Entity target, StandEntity stand) {
         float damage = 0;
-        if (entity.getMaxHealth() >= 20) {
-            damage = entity.getMaxHealth() * 0.0115F;
-            return damage;
-        } else if (entity.getMaxHealth() < 20) {
+        if (!(target instanceof LivingEntity)) {
             damage = StandStatFormulas.getBarrageHitDamage(stand.getAttackDamage(), stand.getPrecision());
             return damage;
         }
-        return damage;
+        else {
+            LivingEntity entity = (LivingEntity) target;
+            if (entity.isAlive() && entity.getMaxHealth() >= 20) {
+                damage = entity.getMaxHealth() * 0.0115F;
+                return damage;
+            }
+            else if (entity.getMaxHealth() < 20) {
+                damage = StandStatFormulas.getBarrageHitDamage(stand.getAttackDamage(), stand.getPrecision());
+                return damage;
+            }
+            return damage;
+        }
     }
     
     @Override
@@ -297,17 +304,15 @@ public class TheHandErasureBarrage extends StandEntityAction implements IHasStan
 
         public BarrageEntityPunch(StandEntity stand, Entity target, StandEntityDamageSource dmgSource) {
             super(stand, target, dmgSource);
-            LivingEntity entity = (LivingEntity) target;
             this
-            .damage(getEraseDamage(entity, stand))
+            .damage(getEraseDamage(target, stand))
             .addFinisher(-0.005F)
             .reduceKnockback((float) stand.getAttackDamage() * 0.0075F);
         }
         
-        public BarrageEntityPunch barrageHits(StandEntity stand, int hits) {
-            LivingEntity entity = (LivingEntity) target;
+        public BarrageEntityPunch barrageHits(StandEntity stand, Entity target, int hits) {
             this.barrageHits = hits;
-            damage(getEraseDamage(entity, stand) * hits);
+            damage(getEraseDamage(target, stand) * hits);
             return this;
         }
         
