@@ -12,7 +12,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.1.1'
+version = "${addon_version}"
 group = 'com.yourname.modid' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'RotP-The-Hand'
 
@@ -114,8 +114,9 @@ minecraft {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
-    flatDir {
-        dirs 'libs'
+    maven {
+        name "RotP Maven"
+        url 'https://raw.githubusercontent.com/StandoByte/RotP-maven/main'
     }
 }
 
@@ -143,7 +144,7 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
-	implementation fg.deobf("standobyte.jojo:${main_mod_file_name}")
+	compileOnly fg.deobf("standobyte.jojo:JJBA-RipplesOfThePast:${main_mod_version}")
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..
