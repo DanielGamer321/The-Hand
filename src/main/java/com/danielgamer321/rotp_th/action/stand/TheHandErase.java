@@ -1,5 +1,6 @@
 package com.danielgamer321.rotp_th.action.stand;
 
+import com.danielgamer321.rotp_th.RotpTheHandConfig;
 import com.danielgamer321.rotp_th.entity.stand.stands.TheHandEntity;
 import com.danielgamer321.rotp_th.init.InitSounds;
 import com.github.standobyte.jojo.action.ActionConditionResult;
@@ -15,6 +16,7 @@ import com.github.standobyte.jojo.entity.stand.StandEntity;
 import com.github.standobyte.jojo.entity.stand.StandEntityTask;
 import com.github.standobyte.jojo.entity.stand.StandPose;
 import com.github.standobyte.jojo.entity.stand.StandStatFormulas;
+import com.github.standobyte.jojo.power.impl.nonstand.INonStandPower;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.util.mc.damage.StandEntityDamageSource;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
@@ -121,8 +123,9 @@ public class TheHandErase extends StandEntityAction implements IHasStandPunch {
 
     private static float getEraseDamage(Entity target, StandEntity stand) {
         float damage = 0;
-        if (!(target instanceof LivingEntity)) {
-            damage = StandStatFormulas.getBarrageHitDamage(stand.getAttackDamage(), stand.getPrecision());
+        double strength = stand.getAttackDamage();
+        if (!(target instanceof LivingEntity) || !PercentDamage()) {
+            damage = StandStatFormulas.getHeavyAttackDamage(strength);
             return damage;
         }
         else {
@@ -132,11 +135,15 @@ public class TheHandErase extends StandEntityAction implements IHasStandPunch {
                 return damage;
             }
             else if (entity.getMaxHealth() < 20) {
-                damage = StandStatFormulas.getBarrageHitDamage(stand.getAttackDamage(), stand.getPrecision());
+                damage = StandStatFormulas.getHeavyAttackDamage(strength);
                 return damage;
             }
             return damage;
         }
+    }
+
+    public static boolean PercentDamage() {
+        return RotpTheHandConfig.getCommonConfigInstance(false).PercentDamage.get();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.danielgamer321.rotp_th.action.stand;
 
+import com.danielgamer321.rotp_th.RotpTheHandConfig;
 import com.danielgamer321.rotp_th.entity.stand.stands.TheHandEntity;
 import com.github.standobyte.jojo.action.ActionConditionResult;
 import com.github.standobyte.jojo.action.ActionTarget;
@@ -112,7 +113,7 @@ public class TheHandErasureBarrage extends StandEntityAction implements IHasStan
 
     private static float getEraseDamage(Entity target, StandEntity stand) {
         float damage = 0;
-        if (!(target instanceof LivingEntity)) {
+        if (!(target instanceof LivingEntity) || !PercentDamage()) {
             damage = StandStatFormulas.getBarrageHitDamage(stand.getAttackDamage(), stand.getPrecision());
             return damage;
         }
@@ -128,6 +129,10 @@ public class TheHandErasureBarrage extends StandEntityAction implements IHasStan
             }
             return damage;
         }
+    }
+
+    public static boolean PercentDamage() {
+        return RotpTheHandConfig.getCommonConfigInstance(false).PercentDamage.get();
     }
     
     @Override

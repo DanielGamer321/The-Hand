@@ -94,6 +94,7 @@ public class InitStands {
                             .range(4.0, 4.0)
                             .durability(10.0)
                             .precision(10.0)
+                            .randomWeight(1)
                             .build("The Hand"),
 
                             new StandType.StandTypeOptionals()

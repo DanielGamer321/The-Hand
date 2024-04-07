@@ -1,5 +1,7 @@
 package com.danielgamer321.rotp_th;
 
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.config.ModConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,6 +20,8 @@ public class RotpTheHandAddon {
     private static final Logger LOGGER = LogManager.getLogger();
 
     public RotpTheHandAddon() {
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, RotpTheHandConfig.commonSpec);
+
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         InitEntities.ENTITIES.register(modEventBus);
