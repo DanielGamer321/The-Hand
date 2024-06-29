@@ -7,16 +7,16 @@ import com.github.standobyte.jojo.action.Action;
 import com.github.standobyte.jojo.action.stand.*;
 import com.github.standobyte.jojo.entity.stand.StandEntityType;
 import com.github.standobyte.jojo.init.power.stand.EntityStandRegistryObject;
-import com.github.standobyte.jojo.init.power.stand.ModStandsInit;
 import com.github.standobyte.jojo.power.impl.stand.StandInstance.StandPart;
 import com.github.standobyte.jojo.power.impl.stand.stats.StandStats;
 import com.github.standobyte.jojo.power.impl.stand.type.EntityStandType;
 import com.github.standobyte.jojo.power.impl.stand.type.StandType;
 
+import com.github.standobyte.jojo.util.mod.StoryPart;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 
-import static com.github.standobyte.jojo.init.power.ModCommonRegisters.ACTIONS;
+import static com.github.standobyte.jojo.init.ModEntityTypes.ENTITIES;
 
 public class InitStands {
     @SuppressWarnings("unchecked")
@@ -38,6 +38,7 @@ public class InitStands {
     
     public static final RegistryObject<StandEntityHeavyAttack> THE_HAND_KICK = ACTIONS.register("the_hand_kick",
             () -> new StandEntityHeavyAttack(new StandEntityHeavyAttack.Builder()
+                    .resolveLevelToUnlock(1)
                     .punchSound(InitSounds.THE_HAND_KICK_HEAVY)
                     .partsRequired(StandPart.ARMS)));
     
@@ -48,16 +49,18 @@ public class InitStands {
                     .setFinisherVariation(THE_HAND_KICK)
                     .shiftVariationOf(THE_HAND_PUNCH).shiftVariationOf(THE_HAND_BARRAGE)));
 
-    public static final RegistryObject<StandEntityAction> THE_HAND_ERASE = ACTIONS.register("the_hand_erase",
+    public static final RegistryObject<StandEntityHeavyAttack> THE_HAND_ERASE = ACTIONS.register("the_hand_erase",
             () -> new TheHandErase(new TheHandErase.Builder().holdToFire(20, false).standUserWalkSpeed(1.0F).standPerformDuration(1)
                     .resolveLevelToUnlock(2)
-                    .partsRequired(StandPart.ARMS)
-                    .standSound(InitSounds.THE_HAND_ERASE)));
+                    .standPose(TheHandErase.ERASE_POSE)
+                    .punchSound(() -> null).swingSound(InitSounds.THE_HAND_ERASE)
+                    .partsRequired(StandPart.ARMS)));
 
-    public static final RegistryObject<StandEntityAction> THE_HAND_ERASURE_BARRAGE = ACTIONS.register("the_hand_erasure_barrage",
-            () -> new TheHandErasureBarrage(new TheHandErasureBarrage.Builder().cooldown(170)
+    public static final RegistryObject<StandEntityMeleeBarrage> THE_HAND_ERASURE_BARRAGE = ACTIONS.register("the_hand_erasure_barrage",
+            () -> new TheHandErasureBarrage(new TheHandErasureBarrage.Builder().staminaCostTick(20F).cooldown(170)
                     .resolveLevelToUnlock(4)
                     .autoSummonStand()
+                    .standPose(TheHandErasureBarrage.ERASURE_BARRAGE_POSE)
                     .barrageSwingSound(InitSounds.THE_HAND_ERASURE_BARRAGE).barrageHitSound(null)
                     .partsRequired(StandPart.ARMS)));
     
@@ -70,40 +73,39 @@ public class InitStands {
                     .standOffsetFromUser(0.667, 0.2, 0).standPose(TheHandEraseItem.ERASE_ITEM_POSE)
                     .partsRequired(StandPart.ARMS)
                     .standSound(InitSounds.THE_HAND_ERASURE_BARRAGE)));
-    
-    
+
+
     public static final EntityStandRegistryObject<EntityStandType<StandStats>, StandEntityType<TheHandEntity>> STAND_THE_HAND =
             new EntityStandRegistryObject<>("the_hand",
-                    STANDS, 
-                    () -> new EntityStandType<StandStats>(
-                            0xEDEEF0, ModStandsInit.PART_4_NAME,
-
-                            new StandAction[] {
+                    STANDS,
+                    () -> new EntityStandType.Builder<>()
+                            .color(0xEDEEF0)
+                            .storyPartName(StoryPart.DIAMOND_IS_UNBREAKABLE.getName())
+                            .leftClickHotbar(
                                     THE_HAND_PUNCH.get(),
                                     THE_HAND_BARRAGE.get(),
                                     THE_HAND_ERASE.get(),
-                                    THE_HAND_ERASURE_BARRAGE.get()},
-                            new StandAction[] {
+                                    THE_HAND_ERASURE_BARRAGE.get()
+                            )
+                            .rightClickHotbar(
                                     THE_HAND_BLOCK.get(),
-                                    THE_HAND_ERASE_ITEM.get()},
-
-                            StandStats.class, new StandStats.Builder()
-                            .tier(6)
-                            .power(12.0)
-                            .speed(12.0)
-                            .range(4.0, 4.0)
-                            .durability(10.0)
-                            .precision(10.0)
-                            .randomWeight(1)
-                            .build("The Hand"),
-
-                            new StandType.StandTypeOptionals()
+                                    THE_HAND_ERASE_ITEM.get()
+                            )
+                            .defaultStats(StandStats.class, new StandStats.Builder()
+                                    .power(12.0)
+                                    .speed(12.0)
+                                    .range(4.0, 4.0)
+                                    .durability(10.0)
+                                    .precision(10.0)
+                                    .randomWeight(1)
+                            )
                             .addSummonShout(InitSounds.OKUYASU_THE_HAND)
-                            .addOst(InitSounds.THE_HAND_OST)),
+                            .addOst(InitSounds.THE_HAND_OST)
+                            .build(),
 
-                    InitEntities.ENTITIES, 
+                    ENTITIES,
                     () -> new StandEntityType<TheHandEntity>(TheHandEntity::new, 0.65F, 1.95F)
-                    .summonSound(InitSounds.THE_HAND_SUMMON)
-                    .unsummonSound(InitSounds.THE_HAND_UNSUMMON))
-            .withDefaultStandAttributes();
+                            .summonSound(InitSounds.THE_HAND_SUMMON)
+                            .unsummonSound(InitSounds.THE_HAND_UNSUMMON))
+                    .withDefaultStandAttributes();
 }

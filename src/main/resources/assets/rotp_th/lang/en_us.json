@@ -9,6 +9,7 @@
   "action.rotp_th.the_hand_erasure_barrage": "Erasure Barrage",
   "action.rotp_th.the_hand_block": "Block",
   "action.rotp_th.the_hand_erase_item": "Erase Item",
+  "jojo.message.action_condition.not_possible_erase_article": "It is not possible to delete this item",
   "rotp_th.subtitle.the_hand_name": "\"The Hand\"",
   "rotp_th.subtitle.erasure": "Erasure"
 }

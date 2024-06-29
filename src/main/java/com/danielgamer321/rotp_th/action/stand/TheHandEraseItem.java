@@ -10,6 +10,7 @@ import com.github.standobyte.jojo.entity.stand.StandRelativeOffset;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.world.World;
 
 public class TheHandEraseItem extends StandEntityAction {
@@ -22,7 +23,10 @@ public class TheHandEraseItem extends StandEntityAction {
     @Override
     protected ActionConditionResult checkSpecificConditions(LivingEntity user, IStandPower power, ActionTarget target) {
         ItemStack itemToErase = user.getOffhandItem();
-        if (itemToErase == null || itemToErase.isEmpty()) {
+        if (itemToErase.getItem() == Items.BEDROCK || itemToErase.getItem() == Items.BARRIER) {
+            return conditionMessage("not_possible_erase_article");
+        }
+        else if (itemToErase == null || itemToErase.isEmpty()) {
             return conditionMessage("item_offhand");
         }
         return super.checkSpecificConditions(user, power, target);

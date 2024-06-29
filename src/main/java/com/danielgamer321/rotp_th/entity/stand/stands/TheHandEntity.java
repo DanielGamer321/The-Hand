@@ -41,7 +41,7 @@ import java.util.function.Supplier;
 
 public class TheHandEntity extends StandEntity {
     public static final AttributeModifier ERASE_POWER_DESTRUCTION_BOOST = new AttributeModifier(
-            UUID.fromString("84331a3b-73f1-4461-b240-6d688897e3f4"), "Destructive power boost in erasure attacks", 0.35, AttributeModifier.Operation.MULTIPLY_BASE);
+            UUID.fromString("84331a3b-73f1-4461-b240-6d688897e3f4"), "Destructive power boost in erasure attacks", 0.34, AttributeModifier.Operation.MULTIPLY_BASE);
 
      private static final DataParameter<Boolean> HAS_ERASE = EntityDataManager.defineId(TheHandEntity.class, DataSerializers.BOOLEAN);
     
