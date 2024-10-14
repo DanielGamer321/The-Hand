@@ -1,12 +1,12 @@
 package com.danielgamer321.rotp_th;
 
-import com.danielgamer321.rotp_th.RotpTheHandAddon;
 import com.danielgamer321.rotp_th.network.packets.fromserver.CommonConfigPacket;
 import com.electronwill.nightconfig.core.CommentedConfig;
 import com.electronwill.nightconfig.core.InMemoryCommentedFormat;
 import com.github.standobyte.jojo.client.ClientUtil;
 import com.github.standobyte.jojo.network.PacketManager;
 import com.github.standobyte.jojo.network.packets.fromserver.ResetSyncedCommonConfigPacket;
+
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.server.MinecraftServer;

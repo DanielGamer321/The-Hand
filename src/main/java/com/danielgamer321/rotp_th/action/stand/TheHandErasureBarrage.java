@@ -2,6 +2,7 @@ package com.danielgamer321.rotp_th.action.stand;
 
 import com.danielgamer321.rotp_th.RotpTheHandConfig;
 import com.danielgamer321.rotp_th.entity.stand.stands.TheHandEntity;
+import com.github.standobyte.jojo.action.ActionTarget;
 import com.github.standobyte.jojo.action.stand.StandEntityAction;
 import com.github.standobyte.jojo.action.stand.StandEntityMeleeBarrage;
 import com.github.standobyte.jojo.entity.stand.StandEntity;
@@ -13,9 +14,12 @@ import com.github.standobyte.jojo.util.mc.damage.StandEntityDamageSource;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeMod;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 public class TheHandErasureBarrage extends StandEntityMeleeBarrage {
     public static final StandPose ERASURE_BARRAGE_POSE = new StandPose("ERASURE_BARRAGE");
@@ -33,6 +37,21 @@ public class TheHandErasureBarrage extends StandEntityMeleeBarrage {
     }
 
     @Override
+    public void standTickPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+        super.standTickPerform(world, standEntity, userPower, task);
+        TheHandEntity theHand = (TheHandEntity) userPower.getStandManifestation();
+        List<ProjectileEntity> check = world.getEntitiesOfClass(ProjectileEntity.class, theHand.getBoundingBox().inflate(theHand.getAttributeValue(ForgeMod.REACH_DISTANCE.get())),
+                entity -> entity.isAlive() && !entity.isPickable());
+        theHand.somethingWasErased(task.getTarget().getType() != ActionTarget.TargetType.EMPTY || !check.isEmpty());
+//        if (task.getTarget().getType() == ActionTarget.TargetType.EMPTY && check.isEmpty()) {
+//            theHand.somethingWasErased(false);
+//        }
+//        else {
+//            theHand.somethingWasErased(true);
+//        }
+    }
+
+    @Override
     public EraseEntityHit punchEntity(StandEntity stand, Entity target, StandEntityDamageSource dmgSource) {
         EraseEntityHit erase = new EraseEntityHit(stand, target, dmgSource).eraseHits(stand, target, stand.barrageHits);
         dmgSource.bypassArmor().bypassMagic();
@@ -42,7 +61,7 @@ public class TheHandErasureBarrage extends StandEntityMeleeBarrage {
     private static float getEraseDamage(Entity target, StandEntity stand) {
         float damage = 0;
         if (!(target instanceof LivingEntity) || !PercentDamage()) {
-            damage = StandStatFormulas.getBarrageHitDamage(stand.getAttackDamage(), stand.getPrecision());
+            damage = StandStatFormulas.getBarrageHitDamage(16, stand.getPrecision());
             return damage;
         }
         else {
@@ -52,7 +71,7 @@ public class TheHandErasureBarrage extends StandEntityMeleeBarrage {
                 return damage;
             }
             else if (entity.getMaxHealth() < 20) {
-                damage = StandStatFormulas.getBarrageHitDamage(stand.getAttackDamage(), stand.getPrecision());
+                damage = StandStatFormulas.getBarrageHitDamage(16, stand.getPrecision());
                 return damage;
             }
             return damage;
@@ -61,6 +80,21 @@ public class TheHandErasureBarrage extends StandEntityMeleeBarrage {
 
     public static boolean PercentDamage() {
         return RotpTheHandConfig.getCommonConfigInstance(false).PercentDamage.get();
+    }
+
+    @Override
+    public void standTickRecovery(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+        super.standTickRecovery(world, standEntity, userPower, task);
+        boolean triggerEffect = task.getTicksLeft() <= 1;
+        if (!world.isClientSide() && triggerEffect) {
+            TheHandEntity thehand = (TheHandEntity) standEntity;
+            LivingEntity user = thehand.getUser();
+            if (!thehand.targetErased() && user != null) {
+                LivingEntity entity = standEntity.isManuallyControlled() ? standEntity : user;
+                TheHandErase.Teleport(world, user, standEntity, entity);
+            }
+            thehand.somethingWasErased(false);
+        }
     }
 
     @Override
@@ -74,10 +108,11 @@ public class TheHandErasureBarrage extends StandEntityMeleeBarrage {
 
     @Override
     public int getHoldDurationMax(IStandPower standPower) {
-        if (standPower.getStandManifestation() instanceof StandEntity) {
+        TheHandEntity theHand = (TheHandEntity) standPower.getStandManifestation();
+        if (standPower.getStandManifestation() instanceof StandEntity && theHand.targetErased()) {
             return StandStatFormulas.getBarrageMaxDuration(((StandEntity) standPower.getStandManifestation()).getDurability()*0.3);
         }
-        return 0;
+        return 20;
     }
 
     public static class EraseEntityHit extends BarrageEntityPunch {

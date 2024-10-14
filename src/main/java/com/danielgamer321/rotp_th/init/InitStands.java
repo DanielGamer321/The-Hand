@@ -11,8 +11,8 @@ import com.github.standobyte.jojo.power.impl.stand.StandInstance.StandPart;
 import com.github.standobyte.jojo.power.impl.stand.stats.StandStats;
 import com.github.standobyte.jojo.power.impl.stand.type.EntityStandType;
 import com.github.standobyte.jojo.power.impl.stand.type.StandType;
-
 import com.github.standobyte.jojo.util.mod.StoryPart;
+
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 
@@ -93,10 +93,10 @@ public class InitStands {
                             )
                             .defaultStats(StandStats.class, new StandStats.Builder()
                                     .power(12.0)
-                                    .speed(12.0)
-                                    .range(4.0, 4.0)
+                                    .speed(11.0, 12.0)
+                                    .range(2.0, 4.0)
                                     .durability(10.0)
-                                    .precision(10.0)
+                                    .precision(8.0, 10.0)
                                     .randomWeight(1)
                             )
                             .addSummonShout(InitSounds.OKUYASU_THE_HAND)
