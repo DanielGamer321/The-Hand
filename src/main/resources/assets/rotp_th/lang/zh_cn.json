@@ -1,15 +1,15 @@
 {
-  "entity.rotp_th.the_hand": "轰炸空间",
+  "entity.jojo.the_hand": "轰炸空间",
   "stand.rotp_th.the_hand": "轰炸空间",
-  "action.rotp_th.the_hand_punch": "击打",
+  "action.rotp_th.the_hand_punch": "轻击",
   "action.rotp_th.the_hand_heavy_punch": "重拳",
   "action.rotp_th.the_hand_kick": "踢",
-  "action.rotp_th.the_hand_barrage": "连拳",
-  "action.rotp_th.the_hand_erase": "擦除",
-  "action.rotp_th.the_hand_erasure_barrage": "擦除连打",
+  "action.rotp_th.the_hand_barrage": "连打",
+  "action.rotp_th.the_hand_erase": "消除空间",
+  "action.rotp_th.the_hand_erasure_barrage": "连续消除",
   "action.rotp_th.the_hand_block": "防御",
-  "action.rotp_th.the_hand_erase_item": "擦除物品",
-  "jojo.message.action_condition.not_possible_erase_article": "这个物品删除不了",
-  "rotp_th.subtitle.the_hand_name": "\"The Hand\"",
-  "rotp_th.subtitle.erasure": "擦除"
+  "action.rotp_th.the_hand_erase_item": "消除物品",
+  "jojo.message.action_condition.not_possible_erase_article": "这个物品无法消除",
+  "rotp_th.subtitle.the_hand_name": "\"轰炸空间!\"",
+  "rotp_th.subtitle.erasure": "轰炸空间发动能力"
 }
