@@ -38,7 +38,7 @@ public class RotpTheHandConfig {
             builder.push("Erase Config");
             PercentDamage = builder
                         .translation("rotp_th.config.PercentDamage")
-                        .define("PercentDamage", false);
+                        .define("PercentDamage", true);
             builder.pop();
             
             if (mainPath != null) {

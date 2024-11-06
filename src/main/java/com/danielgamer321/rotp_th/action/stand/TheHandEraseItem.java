@@ -1,5 +1,6 @@
 package com.danielgamer321.rotp_th.action.stand;
 
+import com.danielgamer321.rotp_th.entity.stand.stands.TheHandEntity;
 import com.github.standobyte.jojo.action.ActionConditionResult;
 import com.github.standobyte.jojo.action.ActionTarget;
 import com.github.standobyte.jojo.action.stand.StandEntityAction;
@@ -12,6 +13,8 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.world.World;
+
+import javax.annotation.Nullable;
 
 public class TheHandEraseItem extends StandEntityAction {
     public static final StandPose ERASE_ITEM_POSE = new StandPose("ERASE_ITEM");
@@ -33,6 +36,14 @@ public class TheHandEraseItem extends StandEntityAction {
     }
 
     @Override
+    public void onTaskSet(World world, StandEntity standEntity, IStandPower standPower, Phase phase, StandEntityTask task, int ticks) {
+        if (!world.isClientSide()) {
+            TheHandEntity thehand = (TheHandEntity) standEntity;
+            thehand.setErase(true);
+        }
+    }
+
+    @Override
     public void standTickPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         LivingEntity user = userPower.getUser();
         if (user != null) {
@@ -47,5 +58,13 @@ public class TheHandEraseItem extends StandEntityAction {
 
     private ItemStack itemToErase(LivingEntity entity) {
         return entity.getOffhandItem();
+    }
+
+    @Override
+    protected void onTaskStopped(World world, StandEntity standEntity, IStandPower standPower, StandEntityTask task, @Nullable StandEntityAction newAction) {
+        if (!world.isClientSide()) {
+            TheHandEntity thehand = (TheHandEntity) standEntity;
+            thehand.setErase(false);
+        }
     }
 }

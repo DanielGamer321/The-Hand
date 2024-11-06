@@ -3,6 +3,10 @@
     "rotp_th:the_hand": {
       "stand_type": "rotp_th:the_hand",
       "color" : "0xEDEEF0"
+    },
+    "rotp_th:the_hand_manga": {
+      "stand_type": "rotp_th:the_hand",
+      "color" : "0xFBFCFE"
     }
   }
 }

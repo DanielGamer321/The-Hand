@@ -50,7 +50,7 @@ public class InitStands {
                     .shiftVariationOf(THE_HAND_PUNCH).shiftVariationOf(THE_HAND_BARRAGE)));
 
     public static final RegistryObject<StandEntityHeavyAttack> THE_HAND_ERASE = ACTIONS.register("the_hand_erase",
-            () -> new TheHandErase(new TheHandErase.Builder().holdToFire(20, false).standUserWalkSpeed(1.0F).standPerformDuration(1)
+            () -> new TheHandErase(new TheHandErase.Builder().holdToFire(20, false).standUserWalkSpeed(1F).standPerformDuration(1)
                     .resolveLevelToUnlock(2)
                     .standPose(TheHandErase.ERASE_POSE)
                     .punchSound(() -> null).swingSound(InitSounds.THE_HAND_ERASE)

@@ -47,6 +47,7 @@ public class TheHandErase extends StandEntityHeavyAttack implements IHasStandPun
         if (!world.isClientSide()) {
             TheHandEntity thehand = (TheHandEntity) standEntity;
             thehand.setErase(true);
+            thehand.somethingWasErased(true);
         }
     }
 
@@ -54,15 +55,15 @@ public class TheHandErase extends StandEntityHeavyAttack implements IHasStandPun
     public void standPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
         super.standPerform(world, standEntity, userPower, task);
         LivingEntity user = userPower.getUser();
-        LivingEntity entity = standEntity.isManuallyControlled() ? standEntity : user;
+        TheHandEntity theHand = (TheHandEntity) standEntity;
         if (task.getTarget().getType() != ActionTarget.TargetType.EMPTY){
-            TheHandEntity theHand = (TheHandEntity) standEntity;
             theHand.somethingWasErased(true);
         }
         if (task.getTarget().getType() == ActionTarget.TargetType.EMPTY){
             if (user.isShiftKeyDown() && userPower.getResolveLevel() >= 3) {
                 standEntity.addFinisherMeter(0.45F, 0);
             }
+            theHand.somethingWasErased(false);
         }
     }
 
@@ -93,11 +94,12 @@ public class TheHandErase extends StandEntityHeavyAttack implements IHasStandPun
     public StandEntityPunch punchEntity(StandEntity stand, Entity target, StandEntityDamageSource dmgSource) {
         dmgSource.bypassArmor().bypassMagic();
         return super.punchEntity(stand, target, dmgSource)
-                .damage(getEraseDamage(target, stand))
-                .addKnockback(0);
+                .damage(getEraseDamage(target))
+                .addKnockback(0)
+                .reduceKnockback(target instanceof StandEntity ? 0 : (float) stand.getAttackDamage() * 0.0075F);
     }
 
-    private static float getEraseDamage(Entity target, StandEntity stand) {
+    private static float getEraseDamage(Entity target) {
         float damage = 0;
         if (!(target instanceof LivingEntity) || !PercentDamage()) {
             damage = StandStatFormulas.getHeavyAttackDamage(16);
@@ -105,12 +107,10 @@ public class TheHandErase extends StandEntityHeavyAttack implements IHasStandPun
         }
         else {
             LivingEntity entity = (LivingEntity) target;
-            if (entity.isAlive() && entity.getMaxHealth() >= 20) {
-                damage = entity.getMaxHealth() * 0.8F;
-                return damage;
-            }
-            else if (entity.getMaxHealth() < 20) {
-                damage = StandStatFormulas.getHeavyAttackDamage(16);
+            if (entity.isAlive()) {
+                float size = (entity.getBbHeight() + entity.getBbWidth()) / 2.4F;
+                float eraseSpace = size > 1.09 ? 1 - (size / 5) : 1 - (size - 1) ;
+                damage = entity.getMaxHealth() * ((size > 1.5 ? 0.5F : 0.8F) * eraseSpace);
                 return damage;
             }
             return damage;
@@ -138,24 +138,14 @@ public class TheHandErase extends StandEntityHeavyAttack implements IHasStandPun
     }
 
     @Override
-    public void standTickRecovery(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
-        super.standTickRecovery(world, standEntity, userPower, task);
-        boolean triggerEffect = task.getTicksLeft() <= 1;
-        if (!world.isClientSide() && triggerEffect) {
+    protected void onTaskStopped(World world, StandEntity standEntity, IStandPower standPower, StandEntityTask task, @Nullable StandEntityAction newAction) {
+        if (!world.isClientSide()) {
             TheHandEntity thehand = (TheHandEntity) standEntity;
             LivingEntity user = thehand.getUser();
             if (!thehand.targetErased() && user != null) {
                 LivingEntity entity = standEntity.isManuallyControlled() ? standEntity : user;
                 Teleport(world, user, standEntity, entity);
             }
-            thehand.somethingWasErased(false);
-        }
-    }
-
-    @Override
-    protected void onTaskStopped(World world, StandEntity standEntity, IStandPower standPower, StandEntityTask task, @Nullable StandEntityAction newAction) {
-        if (!world.isClientSide()) {
-            TheHandEntity thehand = (TheHandEntity) standEntity;
             thehand.setErase(false);
         }
     }

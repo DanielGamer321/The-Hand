@@ -13,6 +13,8 @@ import com.github.standobyte.jojo.util.general.MathUtil;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.util.Hand;
 
+import javax.annotation.Nullable;
+
 // Made with Blockbench 4.6.5
 // Exported for Minecraft version 1.15 - 1.16 with Mojang mappings
 // Paste this class into your mod and generate all required imports
@@ -25,6 +27,14 @@ public class TheHandModel extends HumanoidStandModel<TheHandEntity> {
 	private final ModelRenderer spine2;
 	private final ModelRenderer leftPartTriangle;
 	private final ModelRenderer rightPartTriangle;
+	private final ModelRenderer eraseEffect;
+	private final ModelRenderer eraseRot;
+	private final ModelRenderer eraseRot2;
+	private final ModelRenderer eraseRot3;
+	private final ModelRenderer eraseRot4;
+	private final ModelRenderer eraseRot5;
+	private final ModelRenderer eraseRot6;
+	private final ModelRenderer eraseRot7;
 
 	public TheHandModel() {
 		super();
@@ -117,6 +127,46 @@ public class TheHandModel extends HumanoidStandModel<TheHandEntity> {
 		rightForeArm.texOffs(16, 117).addBox(-2.75F, -0.25F, -1.5F, 1.0F, 3.0F, 3.0F, -0.251F, false);
 		rightForeArm.texOffs(24, 117).addBox(1.75F, -0.25F, -1.5F, 1.0F, 3.0F, 3.0F, -0.251F, false);
 
+		eraseEffect = new ModelRenderer(this);
+		eraseEffect.setPos(0.0F, 0.0F, 0.0F);
+		rightForeArm.addChild(eraseEffect);
+		eraseEffect.texOffs(34, 83).addBox(-2.0F, 5.9F, -2.0F, 4.0F, 1.0F, 4.0F, 0.0F, false);
+
+		eraseRot = new ModelRenderer(this);
+		eraseRot.setPos(-1.5F, 6.9F, 0.0F);
+		eraseEffect.addChild(eraseRot);
+
+
+		eraseRot2 = new ModelRenderer(this);
+		eraseRot2.setPos(0.5F, -6.9F, 0.0F);
+		eraseRot.addChild(eraseRot2);
+		eraseRot2.texOffs(34, 83).addBox(-1.0F, 5.9F, -2.0F, 1.0F, 1.0F, 4.0F, 0.0F, false);
+
+		eraseRot3 = new ModelRenderer(this);
+		eraseRot3.setPos(0.0F, 0.0F, 0.0F);
+		eraseRot2.addChild(eraseRot3);
+		eraseRot3.texOffs(34, 83).addBox(-1.0F, 5.9F, -2.0F, 1.0F, 1.0F, 4.0F, 0.0F, false);
+
+		eraseRot4 = new ModelRenderer(this);
+		eraseRot4.setPos(0.0F, 0.0F, 0.0F);
+		eraseRot3.addChild(eraseRot4);
+		eraseRot4.texOffs(34, 83).addBox(-1.0F, 5.9F, -2.0F, 1.0F, 1.0F, 4.0F, 0.0F, false);
+
+		eraseRot5 = new ModelRenderer(this);
+		eraseRot5.setPos(0.0F, 0.0F, 0.0F);
+		eraseRot4.addChild(eraseRot5);
+		eraseRot5.texOffs(34, 83).addBox(-1.0F, 5.9F, -2.0F, 1.0F, 1.0F, 4.0F, 0.0F, false);
+
+		eraseRot6 = new ModelRenderer(this);
+		eraseRot6.setPos(0.0F, 0.0F, 0.0F);
+		eraseRot5.addChild(eraseRot6);
+		eraseRot6.texOffs(34, 83).addBox(-1.0F, 5.9F, -2.0F, 1.0F, 1.0F, 4.0F, 0.0F, false);
+
+		eraseRot7 = new ModelRenderer(this);
+		eraseRot7.setPos(0.0F, 0.0F, 0.0F);
+		eraseRot6.addChild(eraseRot7);
+		eraseRot7.texOffs(34, 83).addBox(-1.0F, 5.9F, -2.0F, 1.0F, 1.0F, 4.0F, 0.0F, false);
+
 		leftLeg.texOffs(112, 108).addBox(2.0F, -1.25F, -1.5F, 1.0F, 3.0F, 3.0F, 0.0F, true);
 		leftLeg.texOffs(108, 118).addBox(-1.0F, 4.5F, -2.5F, 2.0F, 2.0F, 2.0F, 0.0F, false);
 		leftLeg.texOffs(111, 101).addBox(-2.0F, -0.5F, 0.5F, 5.0F, 1.0F, 2.0F, -0.1F, false);
@@ -134,6 +184,14 @@ public class TheHandModel extends HumanoidStandModel<TheHandEntity> {
 		rightLeg.texOffs(83, 104).addBox(1.0F, 2.5F, 0.5F, 2.0F, 1.0F, 2.0F, -0.1F, false);
 		rightLeg.texOffs(89, 96).addBox(0.0F, 0.3F, -2.5F, 1.0F, 3.0F, 1.0F, -0.1F, false);
 		rightLeg.texOffs(79, 104).addBox(1.0F, 0.3F, 1.5F, 1.0F, 3.0F, 1.0F, -0.1F, false);
+	}
+
+	@Override
+	public void prepareMobModel(@Nullable TheHandEntity entity, float walkAnimPos, float walkAnimSpeed, float partialTick) {
+		super.prepareMobModel(entity, walkAnimPos, walkAnimSpeed, partialTick);
+		if (eraseEffect != null) {
+			eraseEffect.visible = entity != null && entity.isErasing();
+		}
 	}
 
 	@Override
@@ -224,6 +282,13 @@ public class TheHandModel extends HumanoidStandModel<TheHandEntity> {
 				RotationAngle.fromDegrees(leftForeArm, -20F, 0F, 0F),
 				RotationAngle.fromDegrees(rightArm, 45F, 0F, 90F),
 				RotationAngle.fromDegrees(rightForeArm, -140F, 35F, -35F),
+				RotationAngle.fromDegrees(eraseRot, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot2, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot3, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot4, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot5, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot6, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot7, 0F, 0F, 0F),
 				RotationAngle.fromDegrees(leftLeg, -5.5F, 0F, -10F),
 				RotationAngle.fromDegrees(leftLowerLeg, 25F, 0F, 0F),
 				RotationAngle.fromDegrees(rightLeg, -5.5F, 0F, 15F),
@@ -232,17 +297,38 @@ public class TheHandModel extends HumanoidStandModel<TheHandEntity> {
 		ModelPose<TheHandEntity> handPose2 = new ModelPose<>(new RotationAngle[] {
 				RotationAngle.fromDegrees(body, 5F, -10F, 0F),
 				RotationAngle.fromDegrees(rightArm, -45.3409F, 63.1383F, 116.7521F),
-				RotationAngle.fromDegrees(rightForeArm, -10F, 0F, 0F)
+				RotationAngle.fromDegrees(rightForeArm, -10F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot2, 0F, 0F, 5F),
+				RotationAngle.fromDegrees(eraseRot3, 0F, 0F, 2.5F),
+				RotationAngle.fromDegrees(eraseRot4, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot5, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot6, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot7, 0F, 0F, 0F)
 		});
 		ModelPose<TheHandEntity> handPose3 = new ModelPose<>(new RotationAngle[] {
 				RotationAngle.fromDegrees(body, 6.67F, -20F, -3.33F),
 				RotationAngle.fromDegrees(rightArm, -53.6054F, 20.4195F, 101.6022F),
-				RotationAngle.fromDegrees(rightForeArm, -6.67F, 0F, 0F)
+				RotationAngle.fromDegrees(rightForeArm, -6.67F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot, 0F, 0F, 2.5F),
+				RotationAngle.fromDegrees(eraseRot2, 0F, 0F, 5F),
+				RotationAngle.fromDegrees(eraseRot3, 0F, 0F, 5F),
+				RotationAngle.fromDegrees(eraseRot4, 0F, 0F, 5F),
+				RotationAngle.fromDegrees(eraseRot5, 0F, 0F, 2.5F),
+				RotationAngle.fromDegrees(eraseRot6, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot7, 0F, 0F, 0F)
 		});
 		ModelPose<TheHandEntity> handPose4 = new ModelPose<>(new RotationAngle[] {
 				RotationAngle.fromDegrees(body, 10F, -40F, -5F),
 				RotationAngle.fromDegrees(rightArm, -31.4798F, -43.9257F, 37.3255F),
-				RotationAngle.fromDegrees(rightForeArm, 0F, 0F, 0F)
+				RotationAngle.fromDegrees(rightForeArm, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot, 0F, 0F, 5F),
+				RotationAngle.fromDegrees(eraseRot2, 0F, 0F, 5F),
+				RotationAngle.fromDegrees(eraseRot3, 0F, 0F, 5F),
+				RotationAngle.fromDegrees(eraseRot4, 0F, 0F, 5F),
+				RotationAngle.fromDegrees(eraseRot5, 0F, 0F, 5F),
+				RotationAngle.fromDegrees(eraseRot6, 0F, 0F, 5F),
+				RotationAngle.fromDegrees(eraseRot7, 0F, 0F, 5F)
 		});
 		actionAnim.put(TheHandErase.ERASE_POSE, new PosedActionAnimation.Builder<TheHandEntity>()
 				.addPose(StandEntityAction.Phase.WINDUP, new ModelPoseTransition<>(handPose1, handPose2))
@@ -262,12 +348,26 @@ public class TheHandModel extends HumanoidStandModel<TheHandEntity> {
 		RotationAngle[]erasureRightStart = new RotationAngle[] {
 				RotationAngle.fromDegrees(body, 10, -45, 0),
 				RotationAngle.fromDegrees(rightArm, -90, 90, 0),
-				RotationAngle.fromDegrees(rightForeArm, 0, 0, -20)
+				RotationAngle.fromDegrees(rightForeArm, 0, 0, -20),
+				RotationAngle.fromDegrees(eraseRot, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot2, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot3, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot4, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot5, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot6, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot7, 0F, 0F, 0F)
 		};
 
 		RotationAngle[] erasureRightImpact = new RotationAngle[] {
 				RotationAngle.fromDegrees(rightArm, -90, 0, 0),
-				RotationAngle.fromDegrees(rightForeArm, 0, 0, -50)
+				RotationAngle.fromDegrees(rightForeArm, 0, 0, -50),
+				RotationAngle.fromDegrees(eraseRot, 0F, 0F, 10F),
+				RotationAngle.fromDegrees(eraseRot2, 0F, 0F, 5F),
+				RotationAngle.fromDegrees(eraseRot3, 0F, 0F, 5F),
+				RotationAngle.fromDegrees(eraseRot4, 0F, 0F, 5F),
+				RotationAngle.fromDegrees(eraseRot5, 0F, 0F, 5F),
+				RotationAngle.fromDegrees(eraseRot6, 0F, 0F, 5F),
+				RotationAngle.fromDegrees(eraseRot7, 0F, 0F, 5F)
 		};
 
 		IModelPose<TheHandEntity> erasureStabStart = new ModelPoseSided<>(
@@ -295,13 +395,26 @@ public class TheHandModel extends HumanoidStandModel<TheHandEntity> {
 				RotationAngle.fromDegrees(leftForeArm, -20F, 0F, 0F),
 				RotationAngle.fromDegrees(rightArm, -62.8923F, -27.0377F, 10.4828F),
 				RotationAngle.fromDegrees(rightForeArm, -91.2283F, -50.6342F, 77.3291F),
+				RotationAngle.fromDegrees(eraseRot, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot2, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot3, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot4, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot5, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot6, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot7, 0F, 0F, 0F),
 				RotationAngle.fromDegrees(leftLeg, -5.5F, 0F, -10F),
 				RotationAngle.fromDegrees(leftLowerLeg, 25F, 0F, 0F),
 				RotationAngle.fromDegrees(rightLeg, -5.5F, 0F, 15F),
 				RotationAngle.fromDegrees(rightLowerLeg, 15F, 0F, 0F)
 		});
 		ModelPose<TheHandEntity> eraseItem2 = new ModelPose<>(new RotationAngle[] {
-				RotationAngle.fromDegrees(rightForeArm, -112.7381F, -87.9841F, 99.1049F)
+				RotationAngle.fromDegrees(rightForeArm, -112.7381F, -87.9841F, 99.1049F),
+				RotationAngle.fromDegrees(eraseRot, 0F, 0F, 10F),
+				RotationAngle.fromDegrees(eraseRot2, 0F, 0F, 5F),
+				RotationAngle.fromDegrees(eraseRot3, 0F, 0F, 5F),
+				RotationAngle.fromDegrees(eraseRot4, 0F, 0F, 5F),
+				RotationAngle.fromDegrees(eraseRot5, 0F, 0F, 5F),
+				RotationAngle.fromDegrees(eraseRot6, 0F, 0F, 5F)
 		});
 
 		IModelPose<TheHandEntity> eraseItems = new ModelPoseTransition<TheHandEntity>(eraseItem1, eraseItem2).setEasing(sw -> {
@@ -325,6 +438,13 @@ public class TheHandModel extends HumanoidStandModel<TheHandEntity> {
 				RotationAngle.fromDegrees(leftForeArm, -20F, 0.0F, 0.0F),
 				RotationAngle.fromDegrees(rightArm, -22.5F, -35F, 15F),
 				RotationAngle.fromDegrees(rightForeArm, -105F, -10F, 0.0F),
+				RotationAngle.fromDegrees(eraseRot, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot2, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot3, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot4, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot5, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot6, 0F, 0F, 0F),
+				RotationAngle.fromDegrees(eraseRot7, 0F, 0F, 0F),
 				RotationAngle.fromDegrees(leftLeg, -5.5F, 0.0F, -10F),
 				RotationAngle.fromDegrees(leftLowerLeg, 25F, 0.0F, 0.0F),
 				RotationAngle.fromDegrees(rightLeg, -5.5F, 0.0F, 15F),
