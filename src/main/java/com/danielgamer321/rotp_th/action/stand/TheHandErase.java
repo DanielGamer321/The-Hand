@@ -109,7 +109,7 @@ public class TheHandErase extends StandEntityHeavyAttack implements IHasStandPun
             LivingEntity entity = (LivingEntity) target;
             if (entity.isAlive()) {
                 float size = (entity.getBbHeight() + entity.getBbWidth()) / 2.4F;
-                float eraseSpace = size > 1.09 ? 1 - (size / 5) : 1 - (size - 1) ;
+                float eraseSpace = Math.max(size > 1.09 ? 1 - (size / 5) : 1 - (size - 1), 0.05F);
                 damage = entity.getMaxHealth() * ((size > 1.5 ? 0.5F : 0.8F) * eraseSpace);
                 return damage;
             }

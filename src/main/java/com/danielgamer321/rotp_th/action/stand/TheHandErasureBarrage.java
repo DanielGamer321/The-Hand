@@ -68,7 +68,7 @@ public class TheHandErasureBarrage extends StandEntityMeleeBarrage {
             LivingEntity entity = (LivingEntity) target;
             if (entity.isAlive()) {
                 float size = (entity.getBbHeight() + entity.getBbWidth()) / 2.4F;
-                float eraseSpace = size > 1.09 ? 1 - (size / 5) : 1 - (size - 1) ;
+                float eraseSpace = Math.max(size > 1.09 ? 1 - (size / 5) : 1 - (size - 1), 0.05F);
                 damage = entity.getMaxHealth() * ((size > 1.5 ? 0.0071875F : 0.0115F) * eraseSpace);
                 return damage;
             }
@@ -96,11 +96,7 @@ public class TheHandErasureBarrage extends StandEntityMeleeBarrage {
 
     @Override
     public int getHoldDurationMax(IStandPower standPower) {
-        TheHandEntity theHand = (TheHandEntity) standPower.getStandManifestation();
-        if (standPower.getStandManifestation() instanceof StandEntity && theHand.targetErased()) {
-            return StandStatFormulas.getBarrageMaxDuration(((StandEntity) standPower.getStandManifestation()).getDurability()*0.3);
-        }
-        return 20;
+        return StandStatFormulas.getBarrageMaxDuration(((StandEntity) standPower.getStandManifestation()).getDurability()*0.3);
     }
 
     public static class EraseEntityHit extends BarrageEntityPunch {
