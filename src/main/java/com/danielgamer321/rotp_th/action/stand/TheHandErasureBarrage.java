@@ -96,7 +96,11 @@ public class TheHandErasureBarrage extends StandEntityMeleeBarrage {
 
     @Override
     public int getHoldDurationMax(IStandPower standPower) {
-        return StandStatFormulas.getBarrageMaxDuration(((StandEntity) standPower.getStandManifestation()).getDurability()*0.3);
+        if (standPower.getStandManifestation() instanceof StandEntity) {
+            StandEntity standEntity = (StandEntity) standPower.getStandManifestation();
+            return StandStatFormulas.getBarrageMaxDuration(standEntity.getDurability() * 0.3);
+        }
+        return 20;
     }
 
     public static class EraseEntityHit extends BarrageEntityPunch {
