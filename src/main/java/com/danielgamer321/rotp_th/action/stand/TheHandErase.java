@@ -14,6 +14,7 @@ import com.github.standobyte.jojo.entity.stand.StandEntityTask;
 import com.github.standobyte.jojo.entity.stand.StandPose;
 import com.github.standobyte.jojo.entity.stand.StandStatFormulas;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
+import com.github.standobyte.jojo.util.mc.damage.KnockbackCollisionImpact;
 import com.github.standobyte.jojo.util.mc.damage.StandEntityDamageSource;
 import com.github.standobyte.jojo.util.mod.JojoModUtil;
 
@@ -79,12 +80,18 @@ public class TheHandErase extends StandEntityHeavyAttack implements IHasStandPun
                     if (tpVec.lengthSqr() > TP_RANGE_OR_PULL_TRACKING_RANGE * TP_RANGE_OR_PULL_TRACKING_RANGE) {
                         tpVec = tpVec.normalize().scale(TP_RANGE_OR_PULL_TRACKING_RANGE);
                     }
+                    if (targetEntity.isPassenger()) {
+                        targetEntity.stopRiding();
+                    }
                     Vector3d tpPos = targetEntity.position().add(tpVec);
                     targetEntity.teleportTo(tpPos.x, tpPos.y, tpPos.z);
                 }
             }
         }
         else {
+            if (entity.isPassenger()) {
+                entity.stopRiding();
+            }
             Vector3d tpPos = rayTrace.getLocation();
             entity.teleportTo(tpPos.x, tpPos.y, tpPos.z);
         }
@@ -93,10 +100,12 @@ public class TheHandErase extends StandEntityHeavyAttack implements IHasStandPun
     @Override
     public StandEntityPunch punchEntity(StandEntity stand, Entity target, StandEntityDamageSource dmgSource) {
         dmgSource.bypassArmor().bypassMagic();
-        return super.punchEntity(stand, target, dmgSource)
+        return new HeavyPunchInstance(stand, target, dmgSource)
                 .damage(getEraseDamage(target))
                 .addKnockback(0)
-                .reduceKnockback(target instanceof StandEntity ? 0 : (float) stand.getAttackDamage() * 0.0075F);
+                .reduceKnockback(target instanceof StandEntity ? 0 : (float) stand.getAttackDamage() * 0.0075F)
+                .setStandInvulTime(10)
+                .impactSound(null);
     }
 
     private static float getEraseDamage(Entity target) {
@@ -162,6 +171,38 @@ public class TheHandErase extends StandEntityHeavyAttack implements IHasStandPun
     @Override
     public boolean cancelHeldOnGettingAttacked(IStandPower power, DamageSource dmgSource, float dmgAmount) {
         return true;
+    }
+
+
+
+    public static class HeavyPunchInstance extends StandEntityPunch {
+
+        public HeavyPunchInstance(StandEntity stand, Entity target, StandEntityDamageSource dmgSource) {
+            super(stand, target, dmgSource);
+        }
+
+        @Override
+        protected boolean onAttack(StandEntity stand, Entity target, StandEntityDamageSource dmgSource, float damage) {
+            return super.onAttack(stand, target, dmgSource, damage);
+        }
+
+        @Override
+        protected void afterAttack(StandEntity stand, Entity target, StandEntityDamageSource dmgSource, StandEntityTask task, boolean hurt, boolean killed) {if (!stand.level.isClientSide() && hurt) {
+            Entity knockedBack = target;
+            if (target instanceof StandEntity && !killed) {
+                StandEntity standTarget = (StandEntity) target;
+                LivingEntity standUser = standTarget.getUser();
+                if (standUser != null) {
+                    knockedBack = standUser;
+                }
+            }
+
+            Entity _knockedBack = knockedBack;
+            KnockbackCollisionImpact.getHandler(_knockedBack).ifPresent(cap -> cap
+                    .onPunchSetKnockbackImpact(_knockedBack.getDeltaMovement(), stand));
+        }
+            super.afterAttack(stand, target, dmgSource, task, hurt, killed);
+        }
     }
 
     public static class HeavyPunchBlockInstance extends StandBlockPunch {

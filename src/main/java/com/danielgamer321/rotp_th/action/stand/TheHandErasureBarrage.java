@@ -104,9 +104,9 @@ public class TheHandErasureBarrage extends StandEntityMeleeBarrage {
         public EraseEntityHit(StandEntity stand, Entity target, StandEntityDamageSource dmgSource) {
             super(stand, target, dmgSource);
             this
-                    .damage(getEraseDamage(target, stand))
-                    .addFinisher(-0.005F)
-                    .reduceKnockback(target instanceof StandEntity ? 0 : (float) stand.getAttackDamage() * 0.0075F);
+            .damage(getEraseDamage(target, stand))
+            .addFinisher(-0.005F)
+            .reduceKnockback(target instanceof StandEntity ? 0 : (float) stand.getAttackDamage() * 0.0075F);
         }
 
         public EraseEntityHit eraseHits(StandEntity stand, Entity target, int hits) {
@@ -138,6 +138,6 @@ public class TheHandErasureBarrage extends StandEntityMeleeBarrage {
     @Override
     public int getCooldownAdditional(IStandPower power, int ticksHeld) {
         int cooldown = super.getCooldownAdditional(power, ticksHeld*2);
-        return cooldownFromHoldDuration(cooldown, power, ticksHeld);
+        return ticksHeld < 5 ? 24 : cooldownFromHoldDuration(cooldown, power, ticksHeld);
     }
 }

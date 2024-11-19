@@ -11,8 +11,15 @@ import com.github.standobyte.jojo.util.general.MathUtil;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
+import net.minecraft.entity.item.ArmorStandEntity;
+import net.minecraft.entity.item.BoatEntity;
+import net.minecraft.entity.item.FallingBlockEntity;
+import net.minecraft.entity.item.TNTEntity;
+import net.minecraft.entity.item.minecart.AbstractMinecartEntity;
+import net.minecraft.entity.projectile.EyeOfEnderEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.datasync.DataParameter;
@@ -70,7 +77,7 @@ public class TheHandEntity extends StandEntity {
     }
 
     private boolean attackOrErase(Supplier<Boolean> doAttack, StandEntityPunch punch, StandEntityTask task) {
-        if (isErasing() && punch.target instanceof ProjectileEntity) {
+        if (isErasing() && canErase(punch.target)) {
             return eraseProjectile(punch.target);
         }
         else {
@@ -81,11 +88,13 @@ public class TheHandEntity extends StandEntity {
     @Override
     public boolean attackTarget(ActionTarget target, IHasStandPunch punch, StandEntityTask task) {
         if (isErasing()) {
-            level.getEntitiesOfClass(ProjectileEntity.class, getBoundingBox().inflate(getAttributeValue(ForgeMod.REACH_DISTANCE.get())),
-                    entity -> entity.isAlive() && !entity.isPickable()).forEach(projectile -> {
-                if (this.getLookAngle().dot(projectile.getDeltaMovement().reverse().normalize())
-                        >= MathHelper.cos((float) (30.0 + MathHelper.clamp(getPrecision(), 0, 16) * 30.0 / 16.0) * MathUtil.DEG_TO_RAD)) {
-                    eraseProjectile(projectile);
+            level.getEntitiesOfClass(Entity.class, getBoundingBox().inflate(getAttributeValue(ForgeMod.REACH_DISTANCE.get())),
+                    entity -> entity.isAlive()).forEach(removed -> {
+                if (canErase(removed)) {
+                    if (this.getLookAngle().dot(removed.getDeltaMovement().reverse().normalize())
+                            >= MathHelper.cos((float) (30.0 + MathHelper.clamp(getPrecision(), 0, 16) * 30.0 / 16.0) * MathUtil.DEG_TO_RAD)) {
+                        eraseProjectile(removed);
+                    }
                 }
             });
         }
@@ -93,19 +102,38 @@ public class TheHandEntity extends StandEntity {
         return super.attackTarget(target, punch, task);
     }
 
-    private boolean eraseProjectile(Entity projectile) {
-        if (projectile.getType() != ModEntityTypes.SPACE_RIPPER_STINGY_EYES.get()) {
-            eraseProjectile(projectile, getLookAngle());
+    private boolean canErase(Entity target) {
+        return (target instanceof BoatEntity || target instanceof AbstractMinecartEntity ||
+                target instanceof TNTEntity || target instanceof FallingBlockEntity ||
+                target instanceof EyeOfEnderEntity || target instanceof ArmorStandEntity ||
+                target instanceof ProjectileEntity) && !isTheUserVehicle(target);
+    }
+
+    private boolean isTheUserVehicle(Entity target) {
+        LivingEntity passenger = null;
+        if (target.isVehicle()) {
+            for(Entity passengers : target.getPassengers()) {
+                if (passengers instanceof LivingEntity) {
+                    passenger = (LivingEntity) passengers;
+                }
+            }
+        }
+        return passenger != null && passenger == getUser();
+    }
+
+    private boolean eraseProjectile(Entity target) {
+        if (target.getType() != ModEntityTypes.SPACE_RIPPER_STINGY_EYES.get()) {
+            eraseProjectile(target, getLookAngle());
             return true;
         }
         return false;
     }
 
-    public void eraseProjectile(Entity projectile, @Nullable Vector3d eraseVec) {
-        projectile.setDeltaMovement(eraseVec != null ?
-                eraseVec.scale(Math.sqrt(projectile.getDeltaMovement().lengthSqr() / eraseVec.lengthSqr()))
-                : projectile.getDeltaMovement().reverse());
-        projectile.remove();
+    public void eraseProjectile(Entity target, @Nullable Vector3d eraseVec) {
+        target.setDeltaMovement(eraseVec != null ?
+                eraseVec.scale(Math.sqrt(target.getDeltaMovement().lengthSqr() / eraseVec.lengthSqr()))
+                : target.getDeltaMovement().reverse());
+        target.remove();
         somethingWasErased(true);
     }
 
