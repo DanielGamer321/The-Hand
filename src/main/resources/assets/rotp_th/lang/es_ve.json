@@ -1,15 +1,17 @@
 {
+  "effect.rotp_th.surprise": "Sorpresa",
+
   "entity.jojo.the_hand": "The Hand",
   "stand.rotp_th.the_hand": "The Hand",
   "action.rotp_th.the_hand_punch": "Puñetazo",
-  "action.rotp_th.the_hand_heavy_punch": "Golpe fuerte",
+  "action.rotp_th.the_hand_heavy_punch": "Golpe Fuerte",
   "action.rotp_th.the_hand_kick": "Patada",
-  "action.rotp_th.the_hand_barrage": "Bombardeo de puñetazos",
+  "action.rotp_th.the_hand_barrage": "Ráfaga de Puñetazos",
   "action.rotp_th.the_hand_erase": "Borrar",
-  "action.rotp_th.the_hand_erasure_barrage": "Bombardeo de borrado",
+  "action.rotp_th.the_hand_erasure_barrage": "Ráfaga de Borrado",
   "action.rotp_th.the_hand_block": "Bloquear",
-  "action.rotp_th.the_hand_erase_item": "Borrar elemento",
-  "jojo.message.action_condition.not_possible_erase_article": "No es posible eliminar este elemento",
+  "action.rotp_th.the_hand_erase_item": "Borrar Objeto",
+  "jojo.message.action_condition.not_possible_erase_article": "No es posible borrar este objeto",
   "rotp_th.subtitle.the_hand_name": "\"The Hand\"",
   "rotp_th.subtitle.erasure": "Borrado"
 }

@@ -50,14 +50,14 @@ public class InitStands {
                     .shiftVariationOf(THE_HAND_PUNCH).shiftVariationOf(THE_HAND_BARRAGE)));
 
     public static final RegistryObject<StandEntityHeavyAttack> THE_HAND_ERASE = ACTIONS.register("the_hand_erase",
-            () -> new TheHandErase(new TheHandErase.Builder().holdToFire(20, false).standUserWalkSpeed(1F).standPerformDuration(1)
+            () -> new TheHandErase(new TheHandErase.Builder().holdToFire(15, false).staminaCost(150).standUserWalkSpeed(1F).standPerformDuration(1)
                     .resolveLevelToUnlock(2)
                     .standPose(TheHandErase.ERASE_POSE)
                     .punchSound(() -> null).swingSound(InitSounds.THE_HAND_ERASE)
                     .partsRequired(StandPart.ARMS)));
 
     public static final RegistryObject<StandEntityMeleeBarrage> THE_HAND_ERASURE_BARRAGE = ACTIONS.register("the_hand_erasure_barrage",
-            () -> new TheHandErasureBarrage(new TheHandErasureBarrage.Builder().staminaCostTick(20F).cooldown(170)
+            () -> new TheHandErasureBarrage(new TheHandErasureBarrage.Builder().staminaCostTick(12F).cooldown(43)
                     .resolveLevelToUnlock(4)
                     .autoSummonStand()
                     .standPose(TheHandErasureBarrage.ERASURE_BARRAGE_POSE)

@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import com.danielgamer321.rotp_th.init.InitEntities;
 import com.danielgamer321.rotp_th.init.InitSounds;
 import com.danielgamer321.rotp_th.init.InitStands;
+import com.danielgamer321.rotp_th.init.InitEffects;
 
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
@@ -28,6 +29,7 @@ public class RotpTheHandAddon {
         InitSounds.SOUNDS.register(modEventBus);
         InitStands.ACTIONS.register(modEventBus);
         InitStands.STANDS.register(modEventBus);
+        InitEffects.EFFECTS.register(modEventBus);
     }
 
     public static Logger getLogger() {
