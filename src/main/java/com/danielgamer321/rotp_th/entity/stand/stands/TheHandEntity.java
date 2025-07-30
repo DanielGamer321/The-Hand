@@ -131,7 +131,7 @@ public class TheHandEntity extends StandEntity {
                 target instanceof EyeOfEnderEntity || target instanceof ArmorStandEntity ||
                 target instanceof ProjectileEntity || target instanceof EnderCrystalEntity ||
                 target instanceof ItemFrameEntity || (isAquaNecklace(target) &&
-                !target.isPickable())) && !isTheUserVehicle(target);
+                !target.isPickable())) && !isTheUserVehicle(target) && !target.isInvulnerable();
     }
 
     private boolean isTheUserVehicle(Entity target) {
