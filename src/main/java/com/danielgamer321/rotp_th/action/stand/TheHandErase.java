@@ -178,7 +178,7 @@ public class TheHandErase extends StandEntityHeavyAttack implements IHasStandPun
                                 attractedEntity = item;
                             }
                         }
-                        else if (targetEntity instanceof ItemFrameEntity) {
+                        else if (targetEntity instanceof ItemFrameEntity && !targetEntity.isInvulnerable()) {
                             ItemFrameEntity itemFrame = ((ItemFrameEntity) targetEntity);
                             if (!itemFrame.getItem().isEmpty()) {
                                 ItemEntity item = new ItemEntity(world, targetEntity.getX(), targetEntity.getEyeY() - (double)0.4F, targetEntity.getZ(), itemFrame.getItem().copy());
