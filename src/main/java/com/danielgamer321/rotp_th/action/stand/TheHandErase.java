@@ -9,6 +9,7 @@ import com.github.standobyte.jojo.action.ActionTarget;
 import com.github.standobyte.jojo.action.stand.IHasStandPunch;
 import com.github.standobyte.jojo.action.stand.StandEntityAction;
 import com.github.standobyte.jojo.action.stand.StandEntityHeavyAttack;
+import com.github.standobyte.jojo.action.stand.StandEntityLightAttack;
 import com.github.standobyte.jojo.action.stand.punch.IPunch;
 import com.github.standobyte.jojo.action.stand.punch.StandBlockPunch;
 import com.github.standobyte.jojo.action.stand.punch.StandEntityPunch;
@@ -28,12 +29,15 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MobEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.item.ItemFrameEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
@@ -41,6 +45,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class TheHandErase extends StandEntityHeavyAttack implements IHasStandPunch {
@@ -61,18 +66,45 @@ public class TheHandErase extends StandEntityHeavyAttack implements IHasStandPun
         if (standEntity.getUser() != null) {
             theHand.attractTarget(standEntity.getUser().isShiftKeyDown());
         }
-        if (!world.isClientSide()) {
-            theHand.setErase(true);
-            theHand.somethingWasErased(true);
+        if (theHand.swingingArm != Hand.OFF_HAND) {
+            theHand.alternateHands();
         }
+        theHand.somethingWasErased(true);
         theHand.recoveryCount = 0;
+    }
+
+    @Override
+    public void onHoldTick(World world, LivingEntity user, IStandPower power, int ticksHeld, ActionTarget target, boolean requirementsFulfilled) {
+        super.onHoldTick(world, user, power, ticksHeld, target, requirementsFulfilled);
+        if (!world.isClientSide() && power.isActive() && power.getStandManifestation() instanceof TheHandEntity) {
+            TheHandEntity theHand = (TheHandEntity) power.getStandManifestation();
+            if (!theHand.isErasing() && ticksHeld == getHoldDurationToFire(power)) {
+                theHand.setErase(true);
+            }
+        }
+    }
+
+    @Override
+    public void stoppedHolding(World world, LivingEntity user, IStandPower power, int ticksHeld, boolean willFire) {
+        invokeForStand(power, stand -> {
+            if (stand.getCurrentTaskAction() == this) {
+                TheHandEntity theHand = (TheHandEntity) stand;
+                theHand.preparation = (float) power.getHeldActionTicks() / getHoldDurationMax(power);
+            }
+        });
+        super.stoppedHolding(world, user, power, ticksHeld, willFire);
+    }
+
+    @Override
+    public void standPerform(World world, StandEntity standEntity, IStandPower userPower, StandEntityTask task) {
+        super.standPerform(world, standEntity, userPower, task);
     }
 
     @Override
     public StandEntityPunch punchEntity(StandEntity stand, Entity target, StandEntityDamageSource dmgSource) {
         dmgSource.bypassArmor().bypassMagic();
         return new HeavyPunchInstance(stand, target, dmgSource)
-                .damage(getEraseDamage(target))
+                .damage(getEraseDamage(target, (TheHandEntity) stand))
                 .addKnockback(0)
                 .reduceKnockback(target instanceof StandEntity ? 0 : (float) stand.getAttackDamage() * 0.0075F)
                 .disableBlocking(1.0F)
@@ -80,11 +112,11 @@ public class TheHandErase extends StandEntityHeavyAttack implements IHasStandPun
                 .impactSound(null);
     }
 
-    public static float getEraseDamage(Entity target) {
+    public static float getEraseDamage(Entity target, TheHandEntity stand) {
         float damage = 0;
         if (!(target instanceof LivingEntity) || !PercentDamage()) {
             damage = StandStatFormulas.getHeavyAttackDamage(16);
-            return damage;
+            return damage * stand.preparation;
         }
         else {
             LivingEntity entity = (LivingEntity) target;
@@ -92,7 +124,7 @@ public class TheHandErase extends StandEntityHeavyAttack implements IHasStandPun
                 float size = (float) entity.getBoundingBox().getSize();
                 float eraseSpace = Math.max(size > 1.09 ? 1 - (size / 5) : 1 - (size - 1), 0.05F);
                 damage = entity.getMaxHealth() * ((size > 1.5 ? 0.5F : 0.8F) * eraseSpace);
-                return damage;
+                return damage * stand.preparation;
             }
             return damage;
         }
@@ -134,6 +166,16 @@ public class TheHandErase extends StandEntityHeavyAttack implements IHasStandPun
     @Override
     protected boolean standKeepsTarget(ActionTarget target) {
         return !(target.getType() == ActionTarget.TargetType.EMPTY);
+    }
+
+    @Override
+    protected boolean isCancelable(IStandPower standPower, StandEntity standEntity, @Nullable StandEntityAction newAction, Phase phase) {
+        if (phase == Phase.RECOVERY) {
+            return newAction != null && (newAction.canFollowUpBarrage() || newAction instanceof StandEntityLightAttack);
+        }
+        else {
+            return super.isCancelable(standPower, standEntity, newAction, phase);
+        }
     }
 
     @Override
@@ -194,7 +236,7 @@ public class TheHandErase extends StandEntityHeavyAttack implements IHasStandPun
                     }
                     if (attractedEntity instanceof LivingEntity) {
                         LivingEntity livingTarget = ((LivingEntity) attractedEntity);
-                        if (livingTarget instanceof MobEntity && ((MobEntity)livingTarget).isAggressive() && theHand.recoveryCount < 8) {
+                        if (livingTarget instanceof MobEntity && theHand.recoveryCount < 8) {
                             MCUtil.loseTarget((MobEntity)livingTarget, user);
                         }
                         livingTarget.addEffect(new EffectInstance(InitEffects.SURPRISE.get(), 10, 0, false, false, true));
@@ -212,23 +254,35 @@ public class TheHandErase extends StandEntityHeavyAttack implements IHasStandPun
                 entity.stopRiding();
             }
             Vector3d tpPos = rayTrace.getLocation();
+            user.level.getEntitiesOfClass(MobEntity.class, user.getBoundingBox().inflate(8),
+                    mob -> mob.getTarget() == user && mob.getLookAngle().dot(mob.getEyePosition(1).subtract(tpPos)) >= 0)
+            .forEach(mob -> {
+                MCUtil.loseTarget(mob, user);
+            });
             entity.teleportTo(tpPos.x, tpPos.y, tpPos.z);
+            AxisAlignedBB zone = new AxisAlignedBB(new BlockPos(tpPos));
+            List<LivingEntity> entityList = entity.level.getEntitiesOfClass(LivingEntity.class, zone.inflate(3), living -> !(living.is(theHand) || living.is(user)) &&
+                    (living instanceof PlayerEntity || living instanceof StandEntity || (living instanceof MobEntity && ((MobEntity)living).isAggressive())));
+            if (!entityList.isEmpty()) {
+                theHand.addFinisherMeter(theHand.getFinisherMeter() < 0.45 ? 0.45F - theHand.getFinisherMeter() : 0.1F, StandEntity.FINISHER_NO_DECAY_TICKS);
+            }
         }
     }
 
     @Override
     public int getHoldDurationToFire(IStandPower power) {
-        return shortedHoldDuration(power, super.getHoldDurationToFire(power));
+        return getHoldDurationMax(power) / 2;
     }
 
-    private int shortedHoldDuration(IStandPower power, int ticks) {
+    @Override
+    public int getHoldDurationMax(IStandPower power) {
         if (power.isActive() && power.getStandManifestation() instanceof StandEntity) {
             StandEntity stand = (StandEntity) power.getStandManifestation();
-            return ticks > 0 && power.getResolveLevel() >= 4 ? (int) (10 - (4 * stand.getFinisherMeter())) :
-                    (int) (ticks * (7 * stand.getFinisherMeter()));
+            return power.getResolveLevel() >= 4 ? (int) (10 - (4 * stand.getFinisherMeter())) :
+                    (int) (15 * (7 * stand.getFinisherMeter()));
 
         }
-        return ticks > 0 && power.getResolveLevel() >= 4 ? 10 : ticks;
+        return power.getResolveLevel() >= 4 ? 10 : 15;
     }
 
     @Override
@@ -245,6 +299,12 @@ public class TheHandErase extends StandEntityHeavyAttack implements IHasStandPun
         }
 
         @Override
+        protected boolean doAttack(StandEntity stand, Entity target, StandEntityDamageSource dmgSource, float damage) {
+            TheHandEntity.eraseHealth(stand, target, damage);
+            return super.doAttack(stand, target, dmgSource, damage);
+        }
+
+        @Override
         protected boolean onAttack(StandEntity stand, Entity target, StandEntityDamageSource dmgSource, float damage) {
             return super.onAttack(stand, target, dmgSource, damage);
         }
@@ -257,33 +317,34 @@ public class TheHandErase extends StandEntityHeavyAttack implements IHasStandPun
                 ItemStack chestplace = livingTarget.getItemBySlot(EquipmentSlotType.CHEST);
                 ItemStack leggings = livingTarget.getItemBySlot(EquipmentSlotType.LEGS);
                 ItemStack boots = livingTarget.getItemBySlot(EquipmentSlotType.FEET);
+                float preparation = stand instanceof TheHandEntity ? ((TheHandEntity) stand).preparation : 0;
                 if (!helmet.isEmpty()) {
-                    if (helmet.isDamageableItem() && damageToArmor(helmet, 0.1F) < helmet.getMaxDamage()) {
-                        helmet.setDamageValue(damageToArmor(helmet, 0.1F));
+                    if (helmet.isDamageableItem() && damageToArmor(helmet, 0.1F * preparation) < helmet.getMaxDamage()) {
+                        helmet.setDamageValue(damageToArmor(helmet, 0.1F * preparation));
                     }
                     else {
                         helmet.shrink(1);
                     }
                 }
                 if (!chestplace.isEmpty()) {
-                    if (chestplace.isDamageableItem() && damageToArmor(chestplace, 0.15F) < chestplace.getMaxDamage()) {
-                        chestplace.setDamageValue(damageToArmor(chestplace, 0.15F));
+                    if (chestplace.isDamageableItem() && damageToArmor(chestplace, 0.15F * preparation) < chestplace.getMaxDamage()) {
+                        chestplace.setDamageValue(damageToArmor(chestplace, 0.15F * preparation));
                     }
                     else {
                         chestplace.shrink(1);
                     }
                 }
                 if (!leggings.isEmpty()) {
-                    if (leggings.isDamageableItem() && damageToArmor(leggings, 0.1F) < leggings.getMaxDamage()) {
-                        leggings.setDamageValue(damageToArmor(leggings, 0.1F));
+                    if (leggings.isDamageableItem() && damageToArmor(leggings, 0.1F * preparation) < leggings.getMaxDamage()) {
+                        leggings.setDamageValue(damageToArmor(leggings, 0.1F * preparation));
                     }
                     else {
                         leggings.shrink(1);
                     }
                 }
                 if (!boots.isEmpty()) {
-                    if (boots.isDamageableItem() && damageToArmor(boots, 0.05F) < boots.getMaxDamage()) {
-                        boots.setDamageValue(damageToArmor(boots, 0.05F));
+                    if (boots.isDamageableItem() && damageToArmor(boots, 0.05F * preparation) < boots.getMaxDamage()) {
+                        boots.setDamageValue(damageToArmor(boots, 0.05F * preparation));
                     }
                     else {
                         boots.shrink(1);

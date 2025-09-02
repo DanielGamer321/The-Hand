@@ -46,6 +46,7 @@ public class PacketManager {
                 .simpleChannel();
 
         packetIndex = 0;
+        registerMessage(serverChannel, new TrErasedPacket.Handler(),          Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         registerMessage(serverChannel, new CommonConfigPacket.Handler(),                   Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         registerMessage(serverChannel, new ResetSyncedCommonConfigPacket.Handler(),        Optional.of(NetworkDirection.PLAY_TO_CLIENT));
     }

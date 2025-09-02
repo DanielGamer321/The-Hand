@@ -11,6 +11,7 @@ import com.github.standobyte.jojo.entity.stand.StandPose;
 import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.world.World;
@@ -26,6 +27,9 @@ public class TheHandEraseItem extends StandEntityAction {
 
     @Override
     protected ActionConditionResult checkSpecificConditions(LivingEntity user, IStandPower power, ActionTarget target) {
+        if (!(user instanceof PlayerEntity)) {
+            return ActionConditionResult.NEGATIVE;
+        }
         ItemStack itemToErase = user.getOffhandItem();
         if (itemToErase.getItem() == Items.BEDROCK || itemToErase.getItem() == Items.BARRIER) {
             return conditionMessage("not_possible_erase_article");

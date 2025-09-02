@@ -1,6 +1,7 @@
 package com.danielgamer321.rotp_th.util;
 
 import com.danielgamer321.rotp_th.RotpTheHandAddon;
+import com.danielgamer321.rotp_th.capability.entity.EntityUtilCapProvider;
 import com.danielgamer321.rotp_th.init.InitEffects;
 import com.github.standobyte.jojo.power.impl.stand.type.EntityStandType;
 
@@ -14,6 +15,7 @@ import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.world.server.ServerChunkProvider;
 import net.minecraftforge.event.entity.living.LivingConversionEvent;
+import net.minecraftforge.event.entity.living.LivingHealEvent;
 import net.minecraftforge.event.entity.living.PotionEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -82,6 +84,21 @@ public class GameplayEventHandler {
                 if (InitEffects.isEffectTracked(effectEntry.getKey())) {
                     player.connection.send(new SPlayEntityEffectPacket(tracked.getId(), effectEntry.getValue()));
                 }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onLivingHeal(LivingHealEvent event) {
+        LivingEntity entity = (LivingEntity) event.getEntity();
+        float heal = event.getAmount();
+        float erased = entity.getCapability(EntityUtilCapProvider.CAPABILITY).map(cap -> cap.getErased()).orElse(0F);
+        if (entity.hasEffect(InitEffects.ERASED.get())) {
+            if (entity.getHealth() >= entity.getMaxHealth() - erased) {
+                event.setCanceled(true);
+            }
+            else if (entity.getHealth() + heal > entity.getMaxHealth() - erased) {
+                event.setAmount(heal - ((entity.getHealth() + heal) - (entity.getMaxHealth() - erased)));
             }
         }
     }

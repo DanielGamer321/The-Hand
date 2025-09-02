@@ -1,9 +1,13 @@
 package com.danielgamer321.rotp_th.entity.stand.stands;
 
+import com.danielgamer321.rotp_th.action.stand.TheHandErasureBarrage;
+import com.danielgamer321.rotp_th.capability.entity.EntityUtilCapProvider;
+import com.danielgamer321.rotp_th.init.InitEffects;
 import com.danielgamer321.rotp_th.init.InitStands;
 import com.github.standobyte.jojo.action.ActionTarget;
 import com.github.standobyte.jojo.action.stand.IHasStandPunch;
 import com.github.standobyte.jojo.action.stand.punch.StandEntityPunch;
+import com.github.standobyte.jojo.entity.RoadRollerEntity;
 import com.github.standobyte.jojo.entity.stand.StandEntity;
 import com.github.standobyte.jojo.entity.stand.StandEntityTask;
 import com.github.standobyte.jojo.entity.stand.StandEntityType;
@@ -25,6 +29,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
@@ -38,7 +43,6 @@ import java.util.function.Supplier;
 
 
 import static com.danielgamer321.rotp_th.action.stand.TheHandErase.getEraseDamage;
-import static com.danielgamer321.rotp_th.action.stand.TheHandErasureBarrage.getEraseDamage;
 import static com.danielgamer321.rotp_th.util.AddonInteractionUtil.isAquaNecklace;
 
 public class TheHandEntity extends StandEntity {
@@ -47,6 +51,7 @@ public class TheHandEntity extends StandEntity {
     private static final DataParameter<Boolean> TARGET_ERASED = EntityDataManager.defineId(TheHandEntity.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> ATTRACT_TARGET = EntityDataManager.defineId(TheHandEntity.class, DataSerializers.BOOLEAN);
     public int recoveryCount = 0;
+    public float preparation = 0;
     
     public TheHandEntity(StandEntityType<TheHandEntity> type, World world) {
         super(type, world);
@@ -149,11 +154,12 @@ public class TheHandEntity extends StandEntity {
     private boolean eraseEntity(Entity target) {
         if (isAquaNecklace(target)) {
             float damageAmount = this.getCurrentTaskAction() == InitStands.THE_HAND_ERASE.get() ?
-                    getEraseDamage(target) : getEraseDamage(target, this) * this.barrageHits;
+                    getEraseDamage(target, this) : TheHandErasureBarrage.getEraseDamage(target, this) * this.barrageHits;
             LivingEntity user = ((StandEntity)target).getUser();
-            StandEntityDamageSource damage = new StandEntityDamageSource("stand", this, getUserPower());
+            StandEntityDamageSource damage = new StandEntityDamageSource("stand", this, getUserPower() != null ? getUserPower() : null);
             damage.bypassArmor().isBypassMagic();
             DamageUtil.hurtThroughInvulTicks(user != null ? user : target, damage.setKnockbackReduction(0), damageAmount);
+            eraseHealth(this, target, damageAmount);
             somethingWasErased(1);
             return true;
         }
@@ -163,6 +169,33 @@ public class TheHandEntity extends StandEntity {
             return true;
         }
         return false;
+    }
+
+    public static void eraseHealth(StandEntity stand, Entity target, float damage) {
+        if (!stand.level.isClientSide()) {
+            float erased = target.getCapability(EntityUtilCapProvider.CAPABILITY).map(cap -> cap.getErased()).orElse(0F);
+            float dam;
+            if (target instanceof LivingEntity) {
+                LivingEntity livingTarget = (LivingEntity) target;
+                if (livingTarget instanceof StandEntity ) {
+                    StandEntity standTarget = (StandEntity) livingTarget;
+                    livingTarget = standTarget.getUser() != null ? standTarget.getUser() : livingTarget;
+                }
+                damage = damage < livingTarget.getAbsorptionAmount() ? 0 : damage - livingTarget.getAbsorptionAmount();
+                dam = livingTarget.hasEffect(InitEffects.ERASED.get()) ? damage + erased : damage;
+                livingTarget.getCapability(EntityUtilCapProvider.CAPABILITY).ifPresent(cap -> cap.setErased(dam));
+                if (damage > 0) {
+                    livingTarget.addEffect(new EffectInstance(InitEffects.ERASED.get(), 200, 0, false, false, true));
+                }
+            }
+            else if (target instanceof RoadRollerEntity) {
+                dam = damage + erased;
+                if (((RoadRollerEntity) target).getMaxHealth() < erased + dam) {
+                    target.remove();
+                }
+                target.getCapability(EntityUtilCapProvider.CAPABILITY).ifPresent(cap -> cap.setErased(dam));
+            }
+        }
     }
 
     public void eraseProjectile(Entity target, @Nullable Vector3d eraseVec) {

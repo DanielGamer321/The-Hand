@@ -12,6 +12,7 @@ public class CommonSetup {
     @SubscribeEvent
     public static void onFMLCommonSetup(FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
+            ForgeBusEventSubscriber.registerCapabilities();
             PacketManager.init();
         });
     }

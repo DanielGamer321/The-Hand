@@ -5,6 +5,7 @@ import com.danielgamer321.rotp_th.entity.stand.stands.TheHandEntity;
 import com.danielgamer321.rotp_th.init.InitStands;
 import com.github.standobyte.jojo.action.ActionTarget;
 import com.github.standobyte.jojo.action.stand.StandEntityAction;
+import com.github.standobyte.jojo.action.stand.StandEntityLightAttack;
 import com.github.standobyte.jojo.action.stand.StandEntityMeleeBarrage;
 import com.github.standobyte.jojo.action.stand.punch.IPunch;
 import com.github.standobyte.jojo.entity.stand.StandEntity;
@@ -19,6 +20,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
@@ -37,6 +39,9 @@ public class TheHandErasureBarrage extends StandEntityMeleeBarrage {
         TheHandEntity theHand = (TheHandEntity) standEntity;
         if (standEntity.getUser() != null) {
             theHand.attractTarget(standEntity.getUser().isShiftKeyDown());
+        }
+        if (theHand.swingingArm != Hand.OFF_HAND) {
+            theHand.alternateHands();
         }
         if (!world.isClientSide()) {
             theHand.setErase(true);
@@ -148,6 +153,16 @@ public class TheHandErasureBarrage extends StandEntityMeleeBarrage {
     }
 
     @Override
+    protected boolean isCancelable(IStandPower standPower, StandEntity standEntity, @Nullable StandEntityAction newAction, Phase phase) {
+        if (phase == Phase.RECOVERY) {
+            return newAction != null && (newAction.canFollowUpBarrage() || newAction instanceof StandEntityLightAttack);
+        }
+        else {
+            return super.isCancelable(standPower, standEntity, newAction, phase);
+        }
+    }
+
+    @Override
     protected void onTaskStopped(World world, StandEntity standEntity, IStandPower standPower, StandEntityTask task, @Nullable StandEntityAction newAction) {
         super.onTaskStopped(world, standEntity, standPower, task, newAction);
         if (!world.isClientSide()) {
@@ -196,6 +211,12 @@ public class TheHandErasureBarrage extends StandEntityMeleeBarrage {
             }
             boolean hit = super.doHit(task);
             return hit;
+        }
+
+        @Override
+        protected boolean doAttack(StandEntity stand, Entity target, StandEntityDamageSource dmgSource, float damage) {
+            TheHandEntity.eraseHealth(stand, target, damage);
+            return super.doAttack(stand, target, dmgSource, damage);
         }
 
         @Override

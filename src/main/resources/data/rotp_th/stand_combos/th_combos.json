@@ -1,0 +1,50 @@
+{
+  "rotp_th:the_hand": {
+    "use_by_resolve": {
+      "0lvl": ["heavy_combo", "barrage_combo_v1"],
+      "1lvl": ["heavy_combo", "kick_combo", "barrage_combo_v2"],
+      "2lvl": ["heavy_combo", "kick_combo", "barrage_combo_v2", "erase_combo", "erase_combo_alt"],
+      "3lvl": ["heavy_combo", "kick_combo", "barrage_combo_v2", "erase_combo", "erase_combo_alt"],
+      "4lvl": ["heavy_combo", "kick_combo", "barrage_combo_v2", "barrage_combo_alt", "erase_first", "erase_combo", "erase_combo_alt"]
+    },
+    "block": "rotp_th:the_hand_block",
+    "heavy_combo": [
+      { "action": "rotp_th:the_hand_punch", "distance": "<=4" },
+      { "action": "rotp_th:the_hand_punch", "distance": "<=4" },
+      { "action": "rotp_th:the_hand_heavy_punch", "distance": "<=4" }
+    ],
+    "barrage_combo_v1": [
+      { "action": "rotp_th:the_hand_barrage", "distance": "<=4" },
+      { "action": "rotp_th:the_hand_heavy_punch", "distance": "<=4" }
+    ],
+    "kick_combo": [
+      { "action": "rotp_th:the_hand_punch", "distance": "<=4" },
+      { "action": "rotp_th:the_hand_punch", "distance": "<=4" },
+      { "action": "rotp_th:the_hand_punch", "distance": "<=4" },
+      { "action": "rotp_th:the_hand_kick", "distance": "<=4" }
+    ],
+    "barrage_combo_v2": [
+      { "action": "rotp_th:the_hand_barrage", "distance": "<=4" },
+      { "action": "rotp_th:the_hand_kick", "distance": "<=4" }
+    ],
+    "erase_combo": [
+      { "action": "rotp_th:the_hand_punch", "distance": "<=4" },
+      { "action": "rotp_th:the_hand_punch", "distance": "<=4" },
+      { "action": "rotp_th:the_hand_erase", "distance": "<=4" }
+    ],
+    "erase_combo_alt": [
+      { "action": "rotp_th:the_hand_punch", "distance": "<=4" },
+      { "action": "rotp_th:the_hand_punch", "distance": "<=4" },
+      { "action": "rotp_th:the_hand_punch", "distance": "<=4" },
+      { "action": "rotp_th:the_hand_erase", "distance": "<=4" }
+    ],
+    "erase_first": [
+      { "action": "rotp_th:the_hand_erase", "distance": "<6" },
+      { "action": "rotp_th:the_hand_heavy_punch", "distance": "<=4" }
+    ],
+    "barrage_combo_alt": [
+      { "action": "rotp_th:the_hand_erasure_barrage", "distance": "<=4" },
+      { "action": "rotp_th:the_hand_heavy_punch", "distance": "<=4" }
+    ]
+  }
+}
