@@ -37,10 +37,10 @@ public class InitStands {
                     .barrageHitSound(InitSounds.THE_HAND_BARRAGE)));
     
     public static final RegistryObject<StandEntityHeavyAttack> THE_HAND_KICK = ACTIONS.register("the_hand_kick",
-            () -> new StandEntityHeavyAttack(new StandEntityHeavyAttack.Builder()
+            () -> new TheHandKick(new StandEntityHeavyAttack.Builder()
                     .resolveLevelToUnlock(1)
                     .punchSound(InitSounds.THE_HAND_KICK_HEAVY)
-                    .partsRequired(StandPart.ARMS)));
+                    .partsRequired(StandPart.LEGS)));
     
     public static final RegistryObject<StandEntityHeavyAttack> THE_HAND_HEAVY_PUNCH = ACTIONS.register("the_hand_heavy_punch",
             () -> new StandEntityHeavyAttack(new StandEntityHeavyAttack.Builder()

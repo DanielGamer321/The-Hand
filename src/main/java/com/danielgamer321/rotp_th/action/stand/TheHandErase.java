@@ -1,6 +1,7 @@
 package com.danielgamer321.rotp_th.action.stand;
 
 import com.danielgamer321.rotp_th.RotpTheHandConfig;
+import com.danielgamer321.rotp_th.capability.entity.EntityUtilCapProvider;
 import com.danielgamer321.rotp_th.entity.stand.stands.TheHandEntity;
 import com.danielgamer321.rotp_th.init.InitEffects;
 import com.danielgamer321.rotp_th.init.InitStands;
@@ -69,7 +70,7 @@ public class TheHandErase extends StandEntityHeavyAttack implements IHasStandPun
         if (theHand.swingingArm != Hand.OFF_HAND) {
             theHand.alternateHands();
         }
-        theHand.somethingWasErased(true);
+        theHand.somethingWasErased(false);
         theHand.recoveryCount = 0;
     }
 
@@ -239,7 +240,9 @@ public class TheHandErase extends StandEntityHeavyAttack implements IHasStandPun
                         if (livingTarget instanceof MobEntity && theHand.recoveryCount < 8) {
                             MCUtil.loseTarget((MobEntity)livingTarget, user);
                         }
-                        livingTarget.addEffect(new EffectInstance(InitEffects.SURPRISE.get(), 10, 0, false, false, true));
+                        int times = livingTarget.getCapability(EntityUtilCapProvider.CAPABILITY).map(cap -> cap.sometimesSurprised()).orElse(0);
+                        livingTarget.addEffect(new EffectInstance(InitEffects.SURPRISE.get(), (int) 20 / (1 + times), 0, false, false, true));
+                        livingTarget.getCapability(EntityUtilCapProvider.CAPABILITY).ifPresent(cap -> cap.setSurprised(times + 1));
                         if (theHand.getFinisherMeter() < 0.45) {
                             theHand.addFinisherMeter(0.45F - theHand.getFinisherMeter(), StandEntity.FINISHER_NO_DECAY_TICKS);
                         }
@@ -262,8 +265,14 @@ public class TheHandErase extends StandEntityHeavyAttack implements IHasStandPun
             entity.teleportTo(tpPos.x, tpPos.y, tpPos.z);
             AxisAlignedBB zone = new AxisAlignedBB(new BlockPos(tpPos));
             List<LivingEntity> entityList = entity.level.getEntitiesOfClass(LivingEntity.class, zone.inflate(3), living -> !(living.is(theHand) || living.is(user)) &&
-                    (living instanceof PlayerEntity || living instanceof StandEntity || (living instanceof MobEntity && ((MobEntity)living).isAggressive())));
+                    (living instanceof PlayerEntity || living instanceof StandEntity || !(living.getTeam() == theHand.getTeam() && theHand.getTeam() != null &&
+                            !theHand.getTeam().isAllowFriendlyFire())));
             if (!entityList.isEmpty()) {
+                entityList.forEach(living -> {
+                    int times = living.getCapability(EntityUtilCapProvider.CAPABILITY).map(cap -> cap.sometimesSurprised()).orElse(0);
+                    living.addEffect(new EffectInstance(InitEffects.SURPRISE.get(), (int) 20 / (1 + times), 0, false, false, true));
+                    living.getCapability(EntityUtilCapProvider.CAPABILITY).ifPresent(cap -> cap.setSurprised(times + 1));
+                });
                 theHand.addFinisherMeter(theHand.getFinisherMeter() < 0.45 ? 0.45F - theHand.getFinisherMeter() : 0.1F, StandEntity.FINISHER_NO_DECAY_TICKS);
             }
         }
@@ -367,10 +376,7 @@ public class TheHandErase extends StandEntityHeavyAttack implements IHasStandPun
 
         @Override
         public boolean doHit(StandEntityTask task) {
-            if (stand.level.isClientSide()) return false;
-            super.doHit(task);
-
-            return targetHit;
+            return super.doHit(task);
         }
 
         @Override

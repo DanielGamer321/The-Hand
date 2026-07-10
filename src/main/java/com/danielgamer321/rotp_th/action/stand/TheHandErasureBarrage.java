@@ -45,7 +45,7 @@ public class TheHandErasureBarrage extends StandEntityMeleeBarrage {
         }
         if (!world.isClientSide()) {
             theHand.setErase(true);
-            theHand.somethingWasErased(true);
+            theHand.somethingWasErased(false);
         }
         theHand.recoveryCount = 0;
     }
