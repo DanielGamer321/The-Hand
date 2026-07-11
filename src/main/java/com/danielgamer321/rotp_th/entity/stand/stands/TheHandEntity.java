@@ -52,6 +52,7 @@ public class TheHandEntity extends StandEntity {
     private static final DataParameter<Boolean> ATTRACT_TARGET = EntityDataManager.defineId(TheHandEntity.class, DataSerializers.BOOLEAN);
     public int recoveryCount = 0;
     public float preparation = 0.5F;
+    public boolean wasInterrupted = false;
     
     public TheHandEntity(StandEntityType<TheHandEntity> type, World world) {
         super(type, world);

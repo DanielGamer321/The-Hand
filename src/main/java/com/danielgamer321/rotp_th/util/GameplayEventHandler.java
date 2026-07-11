@@ -2,7 +2,12 @@ package com.danielgamer321.rotp_th.util;
 
 import com.danielgamer321.rotp_th.RotpTheHandAddon;
 import com.danielgamer321.rotp_th.capability.entity.EntityUtilCapProvider;
+import com.danielgamer321.rotp_th.entity.stand.stands.TheHandEntity;
+import com.danielgamer321.rotp_th.init.AddonStands;
 import com.danielgamer321.rotp_th.init.InitEffects;
+import com.danielgamer321.rotp_th.init.InitStands;
+import com.github.standobyte.jojo.action.stand.StandEntityAction;
+import com.github.standobyte.jojo.power.impl.stand.IStandPower;
 import com.github.standobyte.jojo.power.impl.stand.type.EntityStandType;
 
 import net.minecraft.entity.Entity;
@@ -15,6 +20,7 @@ import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.world.server.ServerChunkProvider;
 import net.minecraftforge.event.entity.living.LivingConversionEvent;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingHealEvent;
 import net.minecraftforge.event.entity.living.PotionEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -27,16 +33,17 @@ import java.util.Map;
 @EventBusSubscriber(modid = RotpTheHandAddon.MOD_ID)
 public class GameplayEventHandler {
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onPotionAdded(PotionEvent.PotionAddedEvent event) {
-        EntityStandType.giveEffectSharedWithStand(event.getEntityLiving(), event.getPotionEffect());
-
-        Entity entity = event.getEntity();
-        EffectInstance effectInstance = event.getPotionEffect();
-        if (!entity.level.isClientSide()) {
-            if (InitEffects.isEffectTracked(effectInstance.getEffect())) {
-                ((ServerChunkProvider) entity.getCommandSenderWorld().getChunkSource()).broadcast(entity,
-                        new SPlayEntityEffectPacket(entity.getId(), effectInstance));
+    @SubscribeEvent
+    public static void onLivingHeal(LivingHealEvent event) {
+        LivingEntity entity = (LivingEntity) event.getEntity();
+        float heal = event.getAmount();
+        float erased = entity.getCapability(EntityUtilCapProvider.CAPABILITY).map(cap -> cap.getErased()).orElse(0F);
+        if (entity.hasEffect(InitEffects.ERASED.get())) {
+            if (entity.getHealth() >= entity.getMaxHealth() - erased) {
+                event.setCanceled(true);
+            }
+            else if (entity.getHealth() + heal > entity.getMaxHealth() - erased) {
+                event.setAmount(heal - ((entity.getHealth() + heal) - (entity.getMaxHealth() - erased)));
             }
         }
     }
@@ -49,6 +56,36 @@ public class GameplayEventHandler {
             if (converted.isNoAi() && pre.hasEffect(InitEffects.SURPRISE.get()) &&
                     !converted.hasEffect(InitEffects.SURPRISE.get())) {
                 converted.setNoAi(false);
+            }
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onLivingDamage(LivingDamageEvent event) {
+        LivingEntity target = event.getEntityLiving();
+        target.removeEffect(InitEffects.SURPRISE.get());
+        IStandPower.getStandPowerOptional(target).ifPresent(power ->{
+            if (power.getType() == AddonStands.THE_HAND.getStandType() && power.isActive() &&
+                    power.getStandManifestation() instanceof TheHandEntity) {
+                TheHandEntity theHand = (TheHandEntity) power.getStandManifestation();
+                if (theHand.getCurrentTaskAction() == InitStands.THE_HAND_ERASE.get() &&
+                        theHand.getCurrentTaskPhase().get() == StandEntityAction.Phase.BUTTON_HOLD) {
+                    theHand.wasInterrupted = true;
+                }
+            }
+        });
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onPotionAdded(PotionEvent.PotionAddedEvent event) {
+        EntityStandType.giveEffectSharedWithStand(event.getEntityLiving(), event.getPotionEffect());
+
+        Entity entity = event.getEntity();
+        EffectInstance effectInstance = event.getPotionEffect();
+        if (!entity.level.isClientSide()) {
+            if (InitEffects.isEffectTracked(effectInstance.getEffect())) {
+                ((ServerChunkProvider) entity.getCommandSenderWorld().getChunkSource()).broadcast(entity,
+                        new SPlayEntityEffectPacket(entity.getId(), effectInstance));
             }
         }
     }
@@ -84,21 +121,6 @@ public class GameplayEventHandler {
                 if (InitEffects.isEffectTracked(effectEntry.getKey())) {
                     player.connection.send(new SPlayEntityEffectPacket(tracked.getId(), effectEntry.getValue()));
                 }
-            }
-        }
-    }
-
-    @SubscribeEvent
-    public static void onLivingHeal(LivingHealEvent event) {
-        LivingEntity entity = (LivingEntity) event.getEntity();
-        float heal = event.getAmount();
-        float erased = entity.getCapability(EntityUtilCapProvider.CAPABILITY).map(cap -> cap.getErased()).orElse(0F);
-        if (entity.hasEffect(InitEffects.ERASED.get())) {
-            if (entity.getHealth() >= entity.getMaxHealth() - erased) {
-                event.setCanceled(true);
-            }
-            else if (entity.getHealth() + heal > entity.getMaxHealth() - erased) {
-                event.setAmount(heal - ((entity.getHealth() + heal) - (entity.getMaxHealth() - erased)));
             }
         }
     }

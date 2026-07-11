@@ -71,6 +71,7 @@ public class TheHandErase extends StandEntityHeavyAttack implements IHasStandPun
             theHand.alternateHands();
         }
         theHand.somethingWasErased(false);
+        theHand.wasInterrupted = false;
         theHand.recoveryCount = 0;
     }
 
@@ -184,7 +185,7 @@ public class TheHandErase extends StandEntityHeavyAttack implements IHasStandPun
         if (!world.isClientSide()) {
             TheHandEntity theHand = (TheHandEntity) standEntity;
             LivingEntity user = theHand.getUser();
-            if (!theHand.targetErased() && theHand.erasedTargets() <= 0 && user != null) {
+            if (!theHand.targetErased() && theHand.erasedTargets() <= 0 && user != null && !theHand.wasInterrupted) {
                 LivingEntity entity = standEntity.isManuallyControlled() ? standEntity : user;
                 Teleport(world, user, theHand, entity);
             }
